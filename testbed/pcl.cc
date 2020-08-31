@@ -166,6 +166,7 @@ int main(int argc, char* argv[]){
 
 
   auto triangles = cdt->GetTriangles();
+  auto triids = cdt->GetTrianglesIndex();
   auto mAp = cdt->GetMap();
 
 //  pcl::io::loadPCDFile("region.pcd", *cloud);

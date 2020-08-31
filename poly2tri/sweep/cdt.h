@@ -83,6 +83,8 @@ public:
    * Get CDT triangles
    */
   std::vector<Triangle*> GetTriangles();
+
+  std::vector<std::vector<int> > GetTrianglesIndex();
   
   /**
    * Get triangle map

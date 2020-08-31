@@ -29,6 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "cdt.h"
+#include <unordered_map>
 
 namespace p2t {
 
@@ -55,6 +56,26 @@ void CDT::Triangulate()
 std::vector<p2t::Triangle*> CDT::GetTriangles()
 {
   return sweep_context_->GetTriangles();
+}
+
+std::vector<std::vector<int> > CDT::GetTrianglesIndex()
+{
+  std::vector<p2t::Triangle*> tri = GetTriangles();
+  int n = sweep_context_->point_count();
+  std::unordered_map<Point*, int> mp;
+  for (int i=0; i<n; ++i){
+    mp[sweep_context_->GetPoint(i)] = i;
+  }
+  std::vector<std::vector<int> > triid;
+  for (p2t::Triangle* pt : tri){
+    std::vector<int> ptid(3);
+    for (int i=0; i<3; ++i){
+      Point* pp = pt->GetPoint(i);
+      ptid[i] = mp[pp];
+    }
+    triid.push_back(ptid);
+  }
+  return triid;
 }
 
 std::list<p2t::Triangle*> CDT::GetMap()
