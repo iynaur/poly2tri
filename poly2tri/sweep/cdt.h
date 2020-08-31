@@ -99,6 +99,7 @@ public:
    
   SweepContext* sweep_context_;
   Sweep* sweep_;
+  std::vector<Point*> unsort_polyline;
 
 };
 

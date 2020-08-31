@@ -155,10 +155,11 @@ int main(int argc, char* argv[]){
   for (string ns : poly) {
     stringstream ss;
     ss<<ns;
-    double x, y; ss>>x>>y;
+    double x, y, z; ss>>x>>y>>z;
 
     // Create a simple bounding box
     polyline.push_back(new Point(x,y));
+    cloud->push_back(pcl::PointXYZ(x,y,z));
   }
 
   CDT* cdt = new CDT(polyline);
@@ -170,40 +171,17 @@ int main(int argc, char* argv[]){
   auto mAp = cdt->GetMap();
 
 //  pcl::io::loadPCDFile("region.pcd", *cloud);
-  if (0)
-  {
-    float mi = 0; float ma = 2*M_PI - 0.5;
-    for (float dist : {0.7f, 1.0f} ){
-      for (float a = mi; a < ma; a += 0.1){
-        cloud->push_back(pcl::PointXYZ(dist*sin(a), dist*cos(a), 0));
-      }
-    }
-    for (float dist = 0.7; dist <= 1.0; dist+=0.1)
-    {
 
-      cloud->push_back(pcl::PointXYZ(dist*sin(mi), dist*cos(mi), 0));
-      cloud->push_back(pcl::PointXYZ(dist*sin(ma), dist*cos(ma), 0));
-    }
-
-  }
-  hull.setInputCloud(cloud);
-  hull.setDimension(3);
-  string ds = "0.5";
-  if (argc > 1) ds = argv[1];
-  stringstream ss;
-  ss<<ds;
-
-  double alpha;
-  ss>>alpha;
-  hull.setAlpha(alpha);
   vector<pcl::Vertices> polygons;
-  pcl::PointCloud<pcl::PointXYZ>::Ptr surface(new
-                                           pcl::PointCloud<pcl::PointXYZ>);
-  hull.reconstruct(*surface, polygons);
-  isClosure(polygons);
+  for (vector<int> tri : triids){
+    pcl::Vertices vet;
+    for(auto id : tri) vet.vertices.push_back(id);
+    polygons.push_back(vet);
+  }
+
 
   pcl::visualization::PCLVisualizer viewer;
-  viewer.addPolygonMesh<pcl::PointXYZ>(surface, polygons);
+  viewer.addPolygonMesh<pcl::PointXYZ>(cloud, polygons);
   while (!viewer.wasStopped()){
     viewer.spinOnce();
     std::this_thread::sleep_for(chrono::microseconds(100));
@@ -214,79 +192,5 @@ int main(int argc, char* argv[]){
   viewer.removeAllPointClouds();
   return 0;
 
-
-  if (0){
-    pcl::ConvexHull<pcl::PointXYZ> hull;
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new
-                                             pcl::PointCloud<pcl::PointXYZ>);
-    pcl::io::loadPCDFile("region.pcd", *cloud);
-    hull.setInputCloud(cloud);
-    hull.setDimension(3);
-
-
-    hull.reconstruct(*surface, polygons);
-    isClosure(polygons);
-
-    viewer.addPolygonMesh<pcl::PointXYZ>(surface, polygons);
-    while (!viewer.wasStopped()){
-      viewer.spinOnce();
-      std::this_thread::sleep_for(chrono::microseconds(100));
-
-    }
-    viewer.resetStoppedFlag();
-    viewer.removeAllShapes();
-    viewer.removeAllPointClouds();
-  }
-
-  {
-    pcl::GreedyProjectionTriangulation<pcl::PointNormal> hull;
-    pcl::PointCloud<pcl::PointNormal>::Ptr cloud(new
-                                             pcl::PointCloud<pcl::PointNormal>);
-//    pcl::io::loadPCDFile("region.pcd", *cloud);
-    if (1)
-    {
-      pcl::PointCloud<pcl::PointXYZ>::Ptr cloud3(new
-                                               pcl::PointCloud<pcl::PointXYZ>);
-      for (float dist : {0.7f, 1.0f} ){
-        for (float a = 0; a < M_PI; a += 0.1){
-          cloud3->push_back(pcl::PointXYZ(dist*sin(a), dist*cos(a), 0));
-        }
-      }
-      for (float d = 0.7; d <= 1.0; d+=0.1)
-      {
-        cloud3->push_back(pcl::PointXYZ(0, d, 0));
-        cloud3->push_back(pcl::PointXYZ(0, -d, 0));
-      }
-      pcl::copyPointCloud(*cloud3 , *cloud);
-
-    }
-    {
-      pcl::NormalEstimationOMP<pcl::PointNormal, pcl::PointNormal>::Ptr
-          ne(new pcl::NormalEstimationOMP<pcl::PointNormal, pcl::PointNormal>);
-      ne->setInputCloud(cloud);
-      ne->setKSearch(40);
-      ne->compute(*cloud);
-    }
-    hull.setInputCloud(cloud);
-    hull.setMu(3);
-    hull.setMaximumNearestNeighbors(1000);
-    hull.setMaximumAngle(M_PI);
-    hull.setMinimumAngle(0.001);
-    hull.setSearchRadius(alpha);
-
-    hull.reconstruct(polygons);
-
-    auto edges =  getedge(polygons);
-
-    viewer.addPolygonMesh<pcl::PointNormal>(cloud, polygons);
-    while (!viewer.wasStopped()){
-      using namespace std::chrono;
-      viewer.spinOnce();
-      std::this_thread::sleep_for(chrono::microseconds(100));
-    }
-    viewer.resetStoppedFlag();
-    viewer.removeAllShapes();
-    viewer.removeAllPointClouds();
-  }
 
 }

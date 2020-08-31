@@ -37,6 +37,7 @@ CDT::CDT(std::vector<Point*> polyline)
 {
   sweep_context_ = new SweepContext(polyline);
   sweep_ = new Sweep;
+  unsort_polyline = polyline;
 }
 
 void CDT::AddHole(std::vector<Point*> polyline)
@@ -61,10 +62,10 @@ std::vector<p2t::Triangle*> CDT::GetTriangles()
 std::vector<std::vector<int> > CDT::GetTrianglesIndex()
 {
   std::vector<p2t::Triangle*> tri = GetTriangles();
-  int n = sweep_context_->point_count();
+  int n = unsort_polyline.size();
   std::unordered_map<Point*, int> mp;
   for (int i=0; i<n; ++i){
-    mp[sweep_context_->GetPoint(i)] = i;
+    mp[unsort_polyline[i]] = i;
   }
   std::vector<std::vector<int> > triid;
   for (p2t::Triangle* pt : tri){
