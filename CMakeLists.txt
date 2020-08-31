@@ -29,3 +29,61 @@ target_link_libraries(testbed
  -lglfw
  -lGL -lGLU -lGLEW
  )
+
+# PCL
+set(CMAKE_CXX_STANDARD 11)
+
+FIND_PACKAGE( OpenMP REQUIRED)
+if(OPENMP_FOUND)
+message("OPENMP FOUND")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+endif()
+
+#set(CMAKE_C_FLAGS“$ {CMAKE_C_FLAGS} -fPIC”)
+#set(CMAKE_CXX_FLAGS“$ {CMAKE_CXX_FLAGS} -fPIC”)
+
+#设置工程包含当前目录，非必须
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+#设置自动生成moc文件，一定要设置
+set(CMAKE_AUTOMOC ON)
+
+set(CMAKE_AUTORCC ON)
+
+#set(CMAKE_PREFIX_PATH /deploy/dist CACHE PATH "" FORCE)
+
+#查找需要的Qt库文件，最好每一个库都要写，Qt也会根据依赖关系自动添加
+find_package(Qt5Widgets)
+find_package(Qt5Core)
+find_package(Qt5Gui)
+
+find_package(PCL 1.8 REQUIRED)
+find_package(OpenCV REQUIRED)
+find_package(Boost REQUIRED COMPONENTS log system program_options)
+find_package(OpenCV REQUIRED)
+find_package(CUDA)
+include_directories("/usr/local/cuda-8.0/include")
+
+# libjsoncpp
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBJSONCPP REQUIRED jsoncpp)
+find_path(LIBJSONCPP_INCLUDE_DIR json/json.h PATH_SUFFIXES jsoncpp)
+include_directories(${LIBJSONCPP_INCLUDE_DIR})
+
+
+link_directories(${PCL_LIBRARY_DIRS} "lib")
+add_definitions(${PCL_DEFINITIONS})
+include_directories(${PCL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+
+add_executable(qmake
+ testbed/pcl.cc
+ testbed/jsonfileopt.cpp
+ )
+
+target_link_libraries(qmake
+  ${PROJECT_NAME}
+  jsoncpp  ${PCL_LIBRARIES}
+  ${VTK_LIBRARIES})
+
