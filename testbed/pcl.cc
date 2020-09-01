@@ -113,6 +113,7 @@ int main(int argc, char* argv[]){
   jsonfileopt::file2json("./position.json", rt);
 
   std::unordered_map<string, vector<string>> mp;
+  std::unordered_map<string, pair<int, int>> mid;
   Json::Value p_list = rt["position"];
   int n = p_list.size();
   vector<string> labs({"x", "y", "z"});
@@ -129,55 +130,81 @@ int main(int argc, char* argv[]){
         ps += ns + " ";
       }
       pv.push_back(ps);
+      mid[ps] = {i, j};
     }
     mp[pv[0]].push_back(pv[1]);
     mp[pv[1]].push_back(pv[0]);
   }
   assert(mp.size() == n);
 
-  vector<string> poly;
-  auto it = mp.begin();
-  poly.push_back(it->first);
-  poly.push_back(it->second[0]);
-  while(poly.back() != poly.front()){
-    vector<string> nb = mp[poly.back()];
-    for (string nxt : nb){
-      if (nxt != poly[poly.size() - 2]){
-        poly.push_back(nxt);
-        break;
+  vector<vector<string>> polys;
+
+  while(mp.size())
+
+  {
+    vector<string> poly; // point , id
+    auto it = mp.begin();
+    poly.push_back(it->first);
+    poly.push_back(it->second[0]);
+    mp.erase(it);
+    while(poly.back() != poly.front()){
+      string torm = poly.back();
+      vector<string> nb = mp[poly.back()];
+      for (string nxt : nb){
+        if (nxt != poly[poly.size() - 2]){
+          poly.push_back(nxt);
+          mp.erase(torm);
+          break;
+        }
       }
     }
-  }
-  poly.pop_back();
-
-  vector<p2t::Point*> polyline;
-
-  for (string ns : poly) {
-    stringstream ss;
-    ss<<ns;
-    double x, y, z; ss>>x>>y>>z;
-
-    // Create a simple bounding box
-    polyline.push_back(new Point(x,y));
-    cloud->push_back(pcl::PointXYZ(x,y,z));
+    poly.pop_back();
+    polys.push_back(poly);
   }
 
-  CDT* cdt = new CDT(polyline);
-  cdt->Triangulate();
+  vector<pcl::Vertices> polygons;
+
+  for (int i = 0; i< polys.size(); ++i) {
+    auto poly = polys[i];
+    vector<p2t::Point*> polyline;
+
+    int base = cloud->size();
+    for (string ns : poly) {
+      stringstream ss;
+      ss<<ns;
+      double x, y, z; ss>>x>>y>>z;
+
+      // Create a simple bounding box
+      polyline.push_back(new Point(x,y));
+      cloud->push_back(pcl::PointXYZ(x,y,z));
+    }
+
+    CDT* cdt = new CDT(polyline);
+    cdt->Triangulate();
 
 
-  auto triangles = cdt->GetTriangles();
-  auto triids = cdt->GetTrianglesIndex();
-  auto mAp = cdt->GetMap();
+    auto triangles = cdt->GetTriangles();
+    auto triids = cdt->GetTrianglesIndex();
+    auto mAp = cdt->GetMap();
+
+    for (vector<int> tri : triids){
+      for(int id : tri){
+        cout<<mid[poly[id]].first<<" "<<mid[poly[id]].second<<" ";
+      }
+      cout<<"\n";
+    }
+
+    for (vector<int> tri : triids){
+      pcl::Vertices vet;
+      for(auto id : tri) vet.vertices.push_back(id + base);
+      polygons.push_back(vet);
+    }
+  }
 
 //  pcl::io::loadPCDFile("region.pcd", *cloud);
 
-  vector<pcl::Vertices> polygons;
-  for (vector<int> tri : triids){
-    pcl::Vertices vet;
-    for(auto id : tri) vet.vertices.push_back(id);
-    polygons.push_back(vet);
-  }
+
+
 
 
   pcl::visualization::PCLVisualizer viewer;
