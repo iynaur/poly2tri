@@ -105,6 +105,59 @@ bool isClosure(vector<pcl::Vertices> polygons){
 
 }
 
+
+double angle(p2t::Point* p, p2t::Point* a, p2t::Point* b){
+  Point from = *a - *p;
+  Point to = *b - *p;
+
+  double s = Cross(from, to);
+//  if (fabs(s) < 0.001 && )
+  if (fabs(s / (from - to).Length()) < 0.004) return 10;
+
+  return asin( Cross(from, to) / from.Length() / to.Length());
+}
+
+
+bool inPoly(p2t::Point* p, const vector<p2t::Point*> &polyline){
+  double tot = 0;
+  int n = polyline.size();
+
+  for (int i=0; i<n; ++i){
+    Point* a = polyline[i];
+    Point* b = polyline[(i+1)%n];
+    double ang = angle(p, a, b);
+    if (ang == 10)
+      return false;
+    tot += angle(p, a, b);
+  }
+  if (fabs(tot) < M_PI) {
+    assert(fabs(tot) < 0.1);
+    return false;
+  }
+  assert(fabs(tot) > 2*M_PI - 0.1);
+  return true;
+}
+
+vector<p2t::Point*> generateRandomPoints(const vector<p2t::Point*> &polyline, double gridSize){
+  double xmin = 10000, xmax = -xmin, ymin = 10000, ymax = -ymin;
+  for (p2t::Point* p : polyline){
+    xmin = min(xmin, p->x);
+    xmax = max(xmax, p->x);
+    ymin = min(ymin, p->y);
+    ymax = max(ymax, p->y);
+  }
+
+  vector<p2t::Point*> add;
+  for (double x = xmin; x<xmax; x+=gridSize)
+    for (double y = ymin; y<ymax; y+= gridSize){
+      Point *p = new Point(x, y);
+      if (inPoly(p, polyline))
+        add.push_back(p);
+    }
+  return add;
+}
+
+
 int main(int argc, char* argv[]){
   pcl::ConcaveHull<pcl::PointXYZ> hull;
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new
@@ -118,23 +171,35 @@ int main(int argc, char* argv[]){
   int n = p_list.size();
   vector<string> labs({"x", "y", "z"});
 
+  std::unordered_map<string, string> to_real;
+  int trac = 6;
   for (int i = 0; i<n; ++i){
     Json::Value seg_list = p_list[i]["position" + std::to_string(i)];
     vector<string> pv;
     for (int j=0; j<2; ++j){
       string ps;
+      string os;
       for (string lab : labs){
         string ns = seg_list[j][lab].asString();
-        int trac = 9;
-        if (ns.size() > trac) ns.resize(trac);
+
+        string ori = ns;
+        if (ns.size() > trac)
+        {
+          int nsize = trac;
+          if (ns[0] == '-') nsize++;
+          ns.resize(nsize);
+        }
         ps += ns + " ";
+        os += ori + " ";
       }
       pv.push_back(ps);
+      to_real[ps] = os;
       mid[ps] = {i, j};
     }
     mp[pv[0]].push_back(pv[1]);
     mp[pv[1]].push_back(pv[0]);
   }
+  cout<<trac<<" "<<mp.size()<<" "<<n<<endl;
   assert(mp.size() == n);
 
   vector<vector<string>> polys;
@@ -168,32 +233,44 @@ int main(int argc, char* argv[]){
     auto poly = polys[i];
     vector<p2t::Point*> polyline;
 
-    int base = cloud->size();
     for (string ns : poly) {
       stringstream ss;
-      ss<<ns;
+      ss<<to_real[ns];
       double x, y, z; ss>>x>>y>>z;
 
       // Create a simple bounding box
       polyline.push_back(new Point(x,y));
-      cloud->push_back(pcl::PointXYZ(x,y,z));
+//      cloud->push_back(pcl::PointXYZ(x,y,z));
     }
 
     CDT* cdt = new CDT(polyline);
+    vector<p2t::Point*> add = generateRandomPoints(polyline, 0.04);
+    for(auto p : add) cdt->AddPoint(p);
+    cout<<"out size "<<polyline.size()<<" in size "<<add.size()<<endl;
+    cout<<"expect tri "<<polyline.size() - 2 + 2*add.size()<<endl;
     cdt->Triangulate();
 
 
     auto triangles = cdt->GetTriangles();
-    auto triids = cdt->GetTrianglesIndex();
+    vector<p2t::Point*> totp;
+    auto triids = cdt->GetTrianglesIndex(totp);
     auto mAp = cdt->GetMap();
 
-    for (vector<int> tri : triids){
-      for(int id : tri){
-        cout<<mid[poly[id]].first<<" "<<mid[poly[id]].second<<" ";
+    if(0){
+      for (vector<int> tri : triids){
+        for(int id : tri){
+          cout<<mid[poly[id]].first<<" "<<mid[poly[id]].second<<" ";
+        }
+        cout<<"\n";
       }
-      cout<<"\n";
+      cout<<"========\n";
     }
+    cout<<"point size "<<totp.size()<<" tri size "<<triids.size()<<endl;
 
+    int base = cloud->size();
+    for (auto p : totp){
+      cloud->push_back(pcl::PointXYZ(p->x,p->y, 0));
+    }
     for (vector<int> tri : triids){
       pcl::Vertices vet;
       for(auto id : tri) vet.vertices.push_back(id + base);

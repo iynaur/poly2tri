@@ -84,7 +84,7 @@ public:
    */
   std::vector<Triangle*> GetTriangles();
 
-  std::vector<std::vector<int> > GetTrianglesIndex();
+  std::vector<std::vector<int> > GetTrianglesIndex(std::vector<Point *> &totp);
   
   /**
    * Get triangle map
@@ -99,7 +99,6 @@ public:
    
   SweepContext* sweep_context_;
   Sweep* sweep_;
-  std::vector<Point*> unsort_polyline;
 
 };
 

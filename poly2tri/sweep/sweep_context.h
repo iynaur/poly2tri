@@ -79,7 +79,9 @@ void AddToMap(Triangle* triangle);
 
 Point* GetPoint(const int& index);
 
-Point* GetPoints();
+std::vector<Point*> GetPoints(){
+  return points_;
+}
 
 void RemoveFromMap(Triangle* triangle);
 
