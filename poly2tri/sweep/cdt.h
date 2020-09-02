@@ -44,6 +44,8 @@
  
 namespace p2t {
 
+bool tri(float *seg, int seglen, int ** index, std::vector<int> &dbg);
+
 class CDT
 {
 public:

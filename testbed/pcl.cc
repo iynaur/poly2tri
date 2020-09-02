@@ -167,7 +167,6 @@ vector<p2t::Point*> generateRandomPoints(const vector<p2t::Point*> &polyline, do
 
 
 int main(int argc, char* argv[]){
-  pcl::ConcaveHull<pcl::PointXYZ> hull;
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new
                                            pcl::PointCloud<pcl::PointXYZ>);
   Json::Value rt;
@@ -177,120 +176,52 @@ int main(int argc, char* argv[]){
   std::unordered_map<string, pair<int, int>> mid;
   Json::Value p_list = rt["position"];
   int n = p_list.size();
-  vector<string> labs({"x", "y", "z"});
+  vector<string> labs({"x", "y"});
 
   std::unordered_map<string, string> to_real;
   int trac = 6;
+  vector<float> data;
   for (int i = 0; i<n; ++i){
     Json::Value seg_list = p_list[i]["position" + std::to_string(i)];
     vector<string> pv;
     for (int j=0; j<2; ++j){
-      string ps;
-      string os;
+
       for (string lab : labs){
         string ns = seg_list[j][lab].asString();
 
-        string ori = ns;
-        if (ns.size() > trac)
-        {
-          int nsize = trac;
-          if (ns[0] == '-') nsize++;
-          ns.resize(nsize);
-        }
-        ps += ns + " ";
-        os += ori + " ";
+        data.push_back(atof(ns.c_str()));
       }
-      pv.push_back(ps);
-      to_real[ps] = os;
-      mid[ps] = {i, j};
+      cloud->push_back(pcl::PointXYZ(data[data.size() - 2], data.back(), 0));
+
     }
-    mp[pv[0]].push_back(pv[1]);
-    mp[pv[1]].push_back(pv[0]);
+
   }
-  cout<<trac<<" "<<mp.size()<<" "<<n<<endl;
-  assert(mp.size() == n);
-
-  vector<vector<string>> polys;
-
-  while(mp.size())
-
-  {
-    vector<string> poly; // point , id
-    auto it = mp.begin();
-    poly.push_back(it->first);
-    poly.push_back(it->second[0]);
-    mp.erase(it);
-    while(poly.back() != poly.front()){
-      string torm = poly.back();
-      vector<string> nb = mp[poly.back()];
-      for (string nxt : nb){
-        if (nxt != poly[poly.size() - 2]){
-          poly.push_back(nxt);
-          mp.erase(torm);
-          break;
-        }
-      }
-    }
-    poly.pop_back();
-    polys.push_back(poly);
-  }
+  assert(cloud->size() == 2*n);
+  assert(data.size() == 4*n);
+  int *ids;
+  vector<int> dbg;
+  tri(data.data(), n, &ids, dbg);
 
   vector<pcl::Vertices> polygons;
 
-  bool addPoint = 0;
-  for (int i = 0; i< polys.size(); ++i) {
-    auto poly = polys[i];
-    vector<p2t::Point*> polyline;
 
-    for (string ns : poly) {
-      stringstream ss;
-      ss<<to_real[ns];
-      double x, y, z; ss>>x>>y>>z;
-
-      // Create a simple bounding box
-      polyline.push_back(new Point(x,y));
-//      cloud->push_back(pcl::PointXYZ(x,y,z));
-    }
-
-    CDT* cdt = new CDT(polyline);
-    vector<p2t::Point*> add;
-    if (addPoint) {
-      add = generateRandomPoints(polyline, 0.04);
-      for(auto p : add) cdt->AddPoint(p);
-    }
-    cout<<"out size "<<polyline.size()<<" in size "<<add.size()<<endl;
-    cout<<"expect tri "<<polyline.size() - 2 + 2*add.size()<<endl;
-    cdt->Triangulate();
-
-
-//    auto triangles = cdt->GetTriangles();
-    vector<p2t::Point*> totp;
-    std::vector<std::vector<int> > triids;
-    if (addPoint) triids = cdt->GetTrianglesIndex(totp);
-    else {
-      triids = cdt->GetTrianglesIndexOfUnsortInput();
-      totp = polyline;
-    }
-    auto mAp = cdt->GetMap();
-
-    if(!addPoint){
-      for (vector<int> tri : triids){
-        for(int id : tri){
-          cout<<mid[poly[id]].first<<" "<<mid[poly[id]].second<<" ";
-        }
-        cout<<"\n";
-      }
-      cout<<"========\n";
-    }
-    cout<<"point size "<<totp.size()<<" tri size "<<triids.size()<<endl;
-
-    int base = cloud->size();
-    for (auto p : totp){
-      cloud->push_back(pcl::PointXYZ(p->x,p->y, 0));
-    }
-    for (vector<int> tri : triids){
+  ids = dbg.data();
+  int c = ids[0];
+  int base = 1 + c;
+  for (int i = 0; i<c; ++i){
+    if (i>0) base += ids[i];
+    int *tri = ids + base;
+    for (int j = 0; j< ids[i+1]/6; ++j){
       pcl::Vertices vet;
-      for(auto id : tri) vet.vertices.push_back(id + base);
+      for(int ang = 0; ang <3; ++ang)
+      {
+        assert(tri[6*j + 2*ang] < n);
+        assert(tri[6*j + 2*ang + 1] < 2);
+        int id = tri[6*j + 2*ang]*2 + tri[6*j + 2*ang + 1];
+        assert(id < 2*n);
+
+        vet.vertices.push_back(id);
+      }
       polygons.push_back(vet);
     }
   }

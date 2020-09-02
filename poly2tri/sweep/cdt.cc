@@ -30,6 +30,10 @@
  */
 #include "cdt.h"
 #include <unordered_map>
+#include <iostream>
+#include <cstring>
+
+using namespace std;
 
 namespace p2t {
 
@@ -109,6 +113,119 @@ CDT::~CDT()
 {
   delete sweep_context_;
   delete sweep_;
+}
+
+struct pair_hash {
+  template <typename T1, typename T2>
+  std::size_t operator () (const std::pair<T1, T2> &p) const {
+    std::size_t h1 = std::hash<T1>()(p.first);
+    std::size_t h2 = std::hash<T2>()(p.second);
+    return h1 ^ h2;
+  }
+};
+
+bool tri(float *seg, int seglen, int **index, vector<int> &dbg)
+{
+  typedef long long lint;
+  typedef vector<int> vi;
+  typedef pair<int,int> pii;
+  typedef vector<lint> vl;
+  typedef pair<lint,lint> pll;
+
+  std::unordered_map<pll, float*, pair_hash> to_real;
+  std::unordered_map<pll, vector<pll>, pair_hash> mp;
+  std::unordered_map<pll, pair<int, int>, pair_hash> mid;
+
+
+  int trac = 6;
+  lint B = 1e4;
+  for (int i = 0; i< seglen; ++i){
+    vl lseg(4);
+    for (int j = 0; j<4; ++j) lseg[j] = B * seg[i*4 + j];
+    pll from = {lseg[0], lseg[1]};
+    pll to = {lseg[2], lseg[3]};
+    to_real[from] = seg+i*4;
+    to_real[to] = seg+i*4+2;
+    mp[from].push_back(to);
+    mp[to].push_back(from);
+    mid[from] = {i, 0};
+    mid[to] = {i, 1};
+  }
+
+  //check map
+  assert(mp.size() == seglen);
+
+  vector<vector<pll>> polys;
+
+  while(mp.size())
+  {
+    vector<pll> poly;
+    auto it = mp.begin();
+    poly.push_back(it->first);
+    poly.push_back(it->second[0]);
+    mp.erase(it);
+    while(poly.back() != poly.front()){
+      pll torm = poly.back();
+      vector<pll> nb = mp[poly.back()];
+      for (pll nxt : nb){
+        if (nxt != poly[poly.size() - 2]){
+          poly.push_back(nxt);
+          mp.erase(torm);
+          break;
+        }
+      }
+    }
+    poly.pop_back();
+    polys.push_back(poly);
+  }
+
+  vi ans;
+  ans.push_back(polys.size());
+   for (int i = 0; i< polys.size(); ++i) {
+     ans.push_back(0);
+   }
+  for (int i = 0; i< polys.size(); ++i) {
+    auto poly = polys[i];
+    vector<p2t::Point*> polyline;
+
+    for (pll ns : poly) {
+      polyline.push_back(new  Point(1.0 * ns.first/B, 1.0*ns.second/B));
+    }
+
+    CDT* cdt = new CDT(polyline);
+    vector<p2t::Point*> add;
+
+    cdt->Triangulate();
+
+
+//    auto triangles = cdt->GetTriangles();
+    vector<p2t::Point*> totp;
+    std::vector<std::vector<int> > triids;
+    {
+      triids = cdt->GetTrianglesIndexOfUnsortInput();
+      totp = polyline;
+    }
+
+
+    ans[i+1] = (triids.size() * 6);
+    {
+      for (vector<int> tri : triids){
+        for(int id : tri){
+
+          ans.push_back(mid[poly[id]].first);
+          ans.push_back(mid[poly[id]].second);
+        }
+
+      }
+
+    }
+  }
+
+  int *ids = new int[ans.size()];
+  memcpy(ids, ans.data(), ans.size() * sizeof(int));
+  *index = ids;
+  dbg = ans;
+  return true;
 }
 
 }
