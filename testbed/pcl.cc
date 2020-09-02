@@ -237,6 +237,7 @@ int main(int argc, char* argv[]){
 
   vector<pcl::Vertices> polygons;
 
+  bool addPoint = 0;
   for (int i = 0; i< polys.size(); ++i) {
     auto poly = polys[i];
     vector<p2t::Point*> polyline;
@@ -252,19 +253,27 @@ int main(int argc, char* argv[]){
     }
 
     CDT* cdt = new CDT(polyline);
-    vector<p2t::Point*> add = generateRandomPoints(polyline, 0.04);
-    for(auto p : add) cdt->AddPoint(p);
+    vector<p2t::Point*> add;
+    if (addPoint) {
+      add = generateRandomPoints(polyline, 0.04);
+      for(auto p : add) cdt->AddPoint(p);
+    }
     cout<<"out size "<<polyline.size()<<" in size "<<add.size()<<endl;
     cout<<"expect tri "<<polyline.size() - 2 + 2*add.size()<<endl;
     cdt->Triangulate();
 
 
-    auto triangles = cdt->GetTriangles();
+//    auto triangles = cdt->GetTriangles();
     vector<p2t::Point*> totp;
-    auto triids = cdt->GetTrianglesIndex(totp);
+    std::vector<std::vector<int> > triids;
+    if (addPoint) triids = cdt->GetTrianglesIndex(totp);
+    else {
+      triids = cdt->GetTrianglesIndexOfUnsortInput();
+      totp = polyline;
+    }
     auto mAp = cdt->GetMap();
 
-    if(0){
+    if(!addPoint){
       for (vector<int> tri : triids){
         for(int id : tri){
           cout<<mid[poly[id]].first<<" "<<mid[poly[id]].second<<" ";
