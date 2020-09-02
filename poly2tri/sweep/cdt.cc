@@ -32,6 +32,7 @@
 #include <unordered_map>
 #include <iostream>
 #include <cstring>
+#include <limits>
 
 using namespace std;
 
@@ -124,7 +125,7 @@ struct pair_hash {
   }
 };
 
-bool tri(float *seg, int seglen, int **index, vector<int> &dbg)
+bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
 {
   typedef long long lint;
   typedef vector<int> vi;
@@ -138,7 +139,7 @@ bool tri(float *seg, int seglen, int **index, vector<int> &dbg)
 
 
   int trac = 6;
-  lint B = 1e4;
+  lint B = 1e8;
   for (int i = 0; i< seglen; ++i){
     vl lseg(4);
     for (int j = 0; j<4; ++j) lseg[j] = B * seg[i*4 + j];
@@ -153,7 +154,35 @@ bool tri(float *seg, int seglen, int **index, vector<int> &dbg)
   }
 
   //check map
-  assert(mp.size() == seglen);
+  //assert(mp.size() == seglen);
+  {
+    vector<pll> leafs;
+    for (auto it = mp.begin(); it != mp.end(); ++it){
+      assert(it->second.size() <= 2);
+      if (it->second.size() == 1){
+        leafs.push_back(it->first);
+      }
+    }
+    assert(leafs.size() % 2 == 0);
+    cout<<"LEAF SIZE "<<leafs.size()<<endl;
+    for (pll lf : leafs){
+      pll nearest_nb = lf;
+      double mins = std::numeric_limits<double>::max();
+      for (pll nb : leafs) if (nb != lf){
+        double dist = fabs(nb.first - lf.first) + fabs(nb.second - lf.second);
+        if (dist < mins){
+          mins = dist;
+          nearest_nb = nb;
+        }
+      }
+      assert(nearest_nb != lf);
+      mp[lf].push_back(nearest_nb);
+    }
+    for (auto it = mp.begin(); it != mp.end(); ++it){
+      assert(it->second.size() == 2);
+
+    }
+  }
 
   vector<vector<pll>> polys;
 
@@ -224,7 +253,7 @@ bool tri(float *seg, int seglen, int **index, vector<int> &dbg)
   int *ids = new int[ans.size()];
   memcpy(ids, ans.data(), ans.size() * sizeof(int));
   *index = ids;
-  dbg = ans;
+//  dbg = ans;
   return true;
 }
 

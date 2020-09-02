@@ -199,13 +199,13 @@ int main(int argc, char* argv[]){
   assert(cloud->size() == 2*n);
   assert(data.size() == 4*n);
   int *ids;
-  vector<int> dbg;
-  tri(data.data(), n, &ids, dbg);
+//  vector<int> dbg;
+  tri(data.data(), n, &ids/*, dbg*/);
 
   vector<pcl::Vertices> polygons;
 
 
-  ids = dbg.data();
+//  ids = dbg.data();
   int c = ids[0];
   int base = 1 + c;
   for (int i = 0; i<c; ++i){
