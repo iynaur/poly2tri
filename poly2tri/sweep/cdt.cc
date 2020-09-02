@@ -139,10 +139,10 @@ bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
 
 
   int trac = 6;
-  lint B = 1e3;
+  lint B = 1e2;
   for (int i = 0; i< seglen; ++i){
     vl lseg(4);
-    for (int j = 0; j<4; ++j) lseg[j] = B * seg[i*4 + j];
+    for (int j = 0; j<4; ++j) lseg[j] = floor(B * seg[i*4 + j]);
     pll from = {lseg[0], lseg[1]};
     pll to = {lseg[2], lseg[3]};
     if (from == to) continue;
@@ -159,6 +159,8 @@ bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
   {
     vector<pll> leafs;
     for (auto it = mp.begin(); it != mp.end(); ++it){
+      auto pdbg = *it;
+      vector<pll> nbs = it->second;
       assert(it->second.size() <= 2);
       if (it->second.size() == 1){
         leafs.push_back(it->first);
