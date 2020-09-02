@@ -109,12 +109,20 @@ bool isClosure(vector<pcl::Vertices> polygons){
 double angle(p2t::Point* p, p2t::Point* a, p2t::Point* b){
   Point from = *a - *p;
   Point to = *b - *p;
+  double l = from.Length();
+  double s = to.Length();
+  if (l < s) swap(l, s);
+  double S_mark = Cross(from, to);
+  double S = fabs(S_mark);
+  double d = (from - to).Length();
+  double h = S / d;
 
-  double s = Cross(from, to);
-//  if (fabs(s) < 0.001 && )
-  if (fabs(s / (from - to).Length()) < 0.004) return 10;
+  double dmin;
+  if (l*l - s*s > d*d) dmin = s;
+  else dmin = h;
+  if (dmin < 0.01) return 10;
 
-  return asin( Cross(from, to) / from.Length() / to.Length());
+  return asin( S_mark / l / s);
 }
 
 
