@@ -139,12 +139,13 @@ bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
 
 
   int trac = 6;
-  lint B = 1e6;
+  lint B = 1e3;
   for (int i = 0; i< seglen; ++i){
     vl lseg(4);
     for (int j = 0; j<4; ++j) lseg[j] = B * seg[i*4 + j];
     pll from = {lseg[0], lseg[1]};
     pll to = {lseg[2], lseg[3]};
+    if (from == to) continue;
     to_real[from] = seg+i*4;
     to_real[to] = seg+i*4+2;
     mp[from].push_back(to);
