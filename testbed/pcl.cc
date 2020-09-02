@@ -202,31 +202,41 @@ int main(int argc, char* argv[]){
   assert(cloud->size() == 2*n);
   assert(data.size() == 4*n);
   int *ids;
+  vector<pcl::Vertices> spolygons;
 //  vector<int> dbg;
-  tri(data.data(), n, &ids/*, dbg*/);
+  bool test = 1;
+  while(1){
+    tri(data.data(), n, &ids/*, dbg*/);
 
-  vector<pcl::Vertices> polygons;
+    if (!test){
+      vector<pcl::Vertices> polygons;
 
 
-//  ids = dbg.data();
-  int c = ids[0];
-  int base = 1 + c;
-  for (int i = 0; i<c; ++i){
-    if (i>0) base += ids[i]*6;
-    int *tri = ids + base;
-    for (int j = 0; j< ids[i+1]; ++j){
-      pcl::Vertices vet;
-      for(int ang = 0; ang <3; ++ang)
-      {
-        assert(tri[6*j + 2*ang] < n);
-        assert(tri[6*j + 2*ang + 1] < 2);
-        int id = tri[6*j + 2*ang]*2 + tri[6*j + 2*ang + 1];
-        assert(id < 2*n);
+      //  ids = dbg.data();
+      int c = ids[0];
+      int base = 1 + c;
+      for (int i = 0; i<c; ++i){
+        if (i>0) base += ids[i]*6;
+        int *tri = ids + base;
+        for (int j = 0; j< ids[i+1]; ++j){
+          pcl::Vertices vet;
+          for(int ang = 0; ang <3; ++ang)
+          {
+            assert(tri[6*j + 2*ang] < n);
+            assert(tri[6*j + 2*ang + 1] < 2);
+            int id = tri[6*j + 2*ang]*2 + tri[6*j + 2*ang + 1];
+            assert(id < 2*n);
 
-        vet.vertices.push_back(id);
+            vet.vertices.push_back(id);
+          }
+          polygons.push_back(vet);
+        }
       }
-      polygons.push_back(vet);
+      spolygons = polygons;
     }
+    freeIndex(ids);
+
+    if (!test)break;
   }
 
 //  pcl::io::loadPCDFile("region.pcd", *cloud);
@@ -236,7 +246,7 @@ int main(int argc, char* argv[]){
 
 
   pcl::visualization::PCLVisualizer viewer;
-  viewer.addPolygonMesh<pcl::PointXYZ>(cloud, polygons);
+  viewer.addPolygonMesh<pcl::PointXYZ>(cloud, spolygons);
   while (!viewer.wasStopped()){
     viewer.spinOnce();
     std::this_thread::sleep_for(chrono::microseconds(100));

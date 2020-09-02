@@ -79,12 +79,12 @@ link_directories(${PCL_LIBRARY_DIRS} "lib")
 add_definitions(${PCL_DEFINITIONS})
 include_directories(${PCL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
 
-add_executable(qmake
+add_executable(tri
  testbed/pcl.cc
  testbed/jsonfileopt.cpp
  )
 
-target_link_libraries(qmake
+target_link_libraries(tri
   ${PROJECT_NAME}
   jsoncpp  ${PCL_LIBRARIES}
   ${VTK_LIBRARIES})

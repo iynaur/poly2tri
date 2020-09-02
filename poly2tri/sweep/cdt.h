@@ -58,6 +58,7 @@ namespace p2t {
  * ...
  */
 bool tri(float *seg, int seglen, int ** index/*, std::vector<int> &dbg*/);
+void freeIndex(int *p);
 
 class CDT
 {

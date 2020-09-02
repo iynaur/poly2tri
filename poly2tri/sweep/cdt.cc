@@ -221,7 +221,8 @@ bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
     vector<p2t::Point*> polyline;
 
     for (pll ns : poly) {
-      polyline.push_back(new  Point(1.0 * ns.first/B, 1.0*ns.second/B));
+      float* fp = to_real[ns];
+      polyline.push_back(new  Point(fp[0], fp[1]));
     }
 
     CDT* cdt = new CDT(polyline);
@@ -231,13 +232,11 @@ bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
 
 
 //    auto triangles = cdt->GetTriangles();
-    vector<p2t::Point*> totp;
-    std::vector<std::vector<int> > triids;
-    {
-      triids = cdt->GetTrianglesIndexOfUnsortInput();
-      totp = polyline;
+    std::vector<std::vector<int> > triids= cdt->GetTrianglesIndexOfUnsortInput();
+    for (auto p : polyline){
+      delete p;
     }
-
+    delete cdt;
 
     ans[i+1] = (triids.size());
     {
@@ -258,6 +257,11 @@ bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
   *index = ids;
 //  dbg = ans;
   return true;
+}
+
+void freeIndex(int *p)
+{
+  delete[] p;
 }
 
 }
