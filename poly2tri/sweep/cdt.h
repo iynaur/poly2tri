@@ -43,7 +43,20 @@
  */
  
 namespace p2t {
-
+/**
+ *  @tparam  seg    data of segments, every segment has 4 float datas.
+ *  @tparam  seglen     length of seg, seg should contain 4*seglen float numbers.
+ *  @tparam  index   result of triangulars index.
+ *  index[0] = cnt : number of polygons
+ *  index[1] - index[cnt] number of triangulars in each polygon. there will be 6*index[1] int
+ * data for polygon 1.
+ *  index[cnt+1] - ...   triangulars index, each triangular is pressed by 6 numbers:
+ * seg id of angular 0
+ * point id of prev seg
+ * seg id of angular 1
+ * point id of prev seg
+ * ...
+ */
 bool tri(float *seg, int seglen, int ** index/*, std::vector<int> &dbg*/);
 
 class CDT

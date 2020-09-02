@@ -179,7 +179,6 @@ int main(int argc, char* argv[]){
   vector<string> labs({"x", "y"});
 
   std::unordered_map<string, string> to_real;
-  int trac = 6;
   vector<float> data;
   for (int i = 0; i<n; ++i){
     Json::Value seg_list = p_list[i]["position" + std::to_string(i)];
@@ -209,9 +208,9 @@ int main(int argc, char* argv[]){
   int c = ids[0];
   int base = 1 + c;
   for (int i = 0; i<c; ++i){
-    if (i>0) base += ids[i];
+    if (i>0) base += ids[i]*6;
     int *tri = ids + base;
-    for (int j = 0; j< ids[i+1]/6; ++j){
+    for (int j = 0; j< ids[i+1]; ++j){
       pcl::Vertices vet;
       for(int ang = 0; ang <3; ++ang)
       {

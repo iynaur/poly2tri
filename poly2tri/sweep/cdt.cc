@@ -236,7 +236,7 @@ bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
     }
 
 
-    ans[i+1] = (triids.size() * 6);
+    ans[i+1] = (triids.size());
     {
       for (vector<int> tri : triids){
         for(int id : tri){
