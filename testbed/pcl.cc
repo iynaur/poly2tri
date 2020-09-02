@@ -181,7 +181,11 @@ int main(int argc, char* argv[]){
   std::unordered_map<string, string> to_real;
   vector<float> data;
   for (int i = 0; i<n; ++i){
-    Json::Value seg_list = p_list[i]["position" + std::to_string(i)];
+//    Json::Value seg_list = p_list[i]["position" + std::to_string(i)];
+
+    Json::Value root = p_list[i];
+    if( root.size() == 0 ) continue;
+    Json::Value seg_list = *root.begin();
     vector<string> pv;
     for (int j=0; j<2; ++j){
 

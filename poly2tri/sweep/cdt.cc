@@ -139,7 +139,7 @@ bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
 
 
   int trac = 6;
-  lint B = 1e8;
+  lint B = 1e6;
   for (int i = 0; i< seglen; ++i){
     vl lseg(4);
     for (int j = 0; j<4; ++j) lseg[j] = B * seg[i*4 + j];
