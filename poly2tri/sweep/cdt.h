@@ -45,7 +45,7 @@
 namespace p2t {
 /**
  *  @tparam  seg    data of segments, every segment has 4 float datas.
- *  @tparam  seglen     length of seg, seg should contain 4*seglen float numbers.
+ *  @tparam  seglen     count of segments, seg should contain 4*seglen float numbers.
  *  @tparam  index   result of triangulars index.
  *  index[0] = cnt : number of polygons
  *  index[1] - index[cnt] number of triangulars in each polygon. there will be 6*index[1] int

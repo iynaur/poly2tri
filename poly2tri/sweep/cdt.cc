@@ -140,9 +140,17 @@ bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
   std::unordered_map<pll, vector<pll>, pair_hash> mp;
   std::unordered_map<pll, pair<int, int>, pair_hash> mid;
 
+  {
+    stringstream log;
+    for (int i =0; i< 4*seglen; ++i) log<<seg[i]<<'\n';
+    std::ofstream fout;
+    fout.open("./input.txt");
+    fout << log.str() << std::endl;
+    fout.close();
+  }
 
   int trac = 6;
-  lint B = 1e5;
+  lint B = 1e18;
   for (int i = 0; i< seglen; ++i){
     vl lseg(4);
     for (int j = 0; j<4; ++j) lseg[j] = floor(B * seg[i*4 + j]);
