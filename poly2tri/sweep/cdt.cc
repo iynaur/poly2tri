@@ -34,6 +34,8 @@
 #include <cstring>
 #include <limits>
 #include <algorithm>
+#include <sstream>
+#include <fstream>
 
 using namespace std;
 
@@ -140,7 +142,7 @@ bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
 
 
   int trac = 6;
-  lint B = 1e17;
+  lint B = 1e5;
   for (int i = 0; i< seglen; ++i){
     vl lseg(4);
     for (int j = 0; j<4; ++j) lseg[j] = floor(B * seg[i*4 + j]);
@@ -270,6 +272,14 @@ bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
   int *ids = new int[ans.size()];
   memcpy(ids, ans.data(), ans.size() * sizeof(int));
   *index = ids;
+  {
+    stringstream log;
+    for (int i : ans) log<<i<<' ';
+    std::ofstream fout;
+    fout.open("./ans.txt");
+    fout << log.str() << std::endl;
+    fout.close();
+  }
 //  dbg = ans;
   return true;
 }
