@@ -33,6 +33,7 @@
 #include <iostream>
 #include <cstring>
 #include <limits>
+#include <algorithm>
 
 using namespace std;
 
@@ -139,7 +140,7 @@ bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
 
 
   int trac = 6;
-  lint B = 1e9;
+  lint B = 1e17;
   for (int i = 0; i< seglen; ++i){
     vl lseg(4);
     for (int j = 0; j<4; ++j) lseg[j] = floor(B * seg[i*4 + j]);
@@ -169,7 +170,23 @@ bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
     assert(leafs.size() % 2 == 0);
     cout<<"LEAF SIZE "<<leafs.size()<<endl;
     //TODO: all n^2 pairs of distance from short to long,
-    for (pll lf : leafs)if (mp[lf].size() < 2) {
+    vector<pair<pll, pll>> dists;
+    for (int i = 0; i<leafs.size(); ++i) for (int j = i+1; j<leafs.size(); ++j) {
+      if (mp[leafs[i]][0] ==leafs[j]) continue;
+      dists.push_back({leafs[i], leafs[j]});
+    }
+    std::sort(dists.begin(), dists.end(), [](pair<pll, pll> a, pair<pll, pll> b){
+      return fabs(a.first.first - a.second.first) + fabs(a.first.second - a.second.second) <
+          fabs(b.first.first - b.second.first) + fabs(b.first.second - b.second.second);
+    });
+
+    for (pair<pll, pll> seg : dists){
+      if (mp[seg.first].size() == 2 || mp[seg.second].size() == 2) continue;
+      mp[seg.first].push_back(seg.second);
+      mp[seg.second].push_back(seg.first);
+    }
+
+    if (bool toremove = 1) for (pll lf : leafs)if (mp[lf].size() < 2) {
       pll nearest_nb = lf;
       double mins = std::numeric_limits<double>::max();
       for (pll nb : leafs) if (mp[nb].size()<2) if (nb != lf && nb != mp[lf][0]){
