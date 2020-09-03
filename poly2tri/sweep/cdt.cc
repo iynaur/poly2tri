@@ -139,7 +139,7 @@ bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
 
 
   int trac = 6;
-  lint B = 1e17;
+  lint B = 1e9;
   for (int i = 0; i< seglen; ++i){
     vl lseg(4);
     for (int j = 0; j<4; ++j) lseg[j] = floor(B * seg[i*4 + j]);
@@ -168,6 +168,7 @@ bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
     }
     assert(leafs.size() % 2 == 0);
     cout<<"LEAF SIZE "<<leafs.size()<<endl;
+    //TODO: all n^2 pairs of distance from short to long,
     for (pll lf : leafs)if (mp[lf].size() < 2) {
       pll nearest_nb = lf;
       double mins = std::numeric_limits<double>::max();
