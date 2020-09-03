@@ -1,1 +1,3 @@
 CMakeLists.txt.user
+*.user.*
+CMakeLists.txt.user.22

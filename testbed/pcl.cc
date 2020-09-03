@@ -75,7 +75,6 @@ vector<pcl::Vertices> getedge(vector<pcl::Vertices> polygons){
 
   return edges;
 
-
 }
 
 bool isClosure(vector<pcl::Vertices> polygons){
@@ -204,7 +203,7 @@ int main(int argc, char* argv[]){
   int *ids;
   vector<pcl::Vertices> spolygons;
 //  vector<int> dbg;
-  bool test = 1;
+  bool test = 0;
   while(1){
     tri(data.data(), n, &ids/*, dbg*/);
 

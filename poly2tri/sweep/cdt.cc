@@ -139,7 +139,7 @@ bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
 
 
   int trac = 6;
-  lint B = 1e2;
+  lint B = 1e17;
   for (int i = 0; i< seglen; ++i){
     vl lseg(4);
     for (int j = 0; j<4; ++j) lseg[j] = floor(B * seg[i*4 + j]);
@@ -161,17 +161,17 @@ bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
     for (auto it = mp.begin(); it != mp.end(); ++it){
       auto pdbg = *it;
       vector<pll> nbs = it->second;
-      assert(it->second.size() <= 2);
+      assert(it->second.size() == 2 || it->second.size() == 1);
       if (it->second.size() == 1){
         leafs.push_back(it->first);
       }
     }
     assert(leafs.size() % 2 == 0);
     cout<<"LEAF SIZE "<<leafs.size()<<endl;
-    for (pll lf : leafs){
+    for (pll lf : leafs)if (mp[lf].size() < 2) {
       pll nearest_nb = lf;
       double mins = std::numeric_limits<double>::max();
-      for (pll nb : leafs) if (nb != lf){
+      for (pll nb : leafs) if (mp[nb].size()<2) if (nb != lf && nb != mp[lf][0]){
         double dist = fabs(nb.first - lf.first) + fabs(nb.second - lf.second);
         if (dist < mins){
           mins = dist;
@@ -180,10 +180,11 @@ bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
       }
       assert(nearest_nb != lf);
       mp[lf].push_back(nearest_nb);
+      mp[nearest_nb].push_back(lf);
     }
     for (auto it = mp.begin(); it != mp.end(); ++it){
       assert(it->second.size() == 2);
-
+      assert(it->second[0] != it->second[1]);
     }
   }
 
@@ -226,12 +227,8 @@ bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
     }
 
     CDT* cdt = new CDT(polyline);
-    vector<p2t::Point*> add;
 
     cdt->Triangulate();
-
-
-//    auto triangles = cdt->GetTriangles();
     std::vector<std::vector<int> > triids= cdt->GetTrianglesIndexOfUnsortInput();
     for (auto p : polyline){
       delete p;
