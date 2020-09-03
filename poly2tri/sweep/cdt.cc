@@ -171,7 +171,7 @@ bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
     }
     assert(leafs.size() % 2 == 0);
     cout<<"LEAF SIZE "<<leafs.size()<<endl;
-    //TODO: all n^2 pairs of distance from short to long,
+    // all n^2 pairs of distance from short to long,
     vector<pair<pll, pll>> dists;
     for (int i = 0; i<leafs.size(); ++i) for (int j = i+1; j<leafs.size(); ++j) {
       if (mp[leafs[i]][0] ==leafs[j]) continue;
@@ -188,7 +188,7 @@ bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
       mp[seg.second].push_back(seg.first);
     }
 
-    if (bool toremove = 1) for (pll lf : leafs)if (mp[lf].size() < 2) {
+    if (bool keepOld = 0) for (pll lf : leafs)if (mp[lf].size() < 2) {
       pll nearest_nb = lf;
       double mins = std::numeric_limits<double>::max();
       for (pll nb : leafs) if (mp[nb].size()<2) if (nb != lf && nb != mp[lf][0]){
