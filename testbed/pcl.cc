@@ -193,18 +193,40 @@ int main(int argc, char* argv[]){
 
         data.push_back(atof(ns.c_str()));
       }
-      cloud->push_back(pcl::PointXYZ(data[data.size() - 2], data.back(), 0));
-
     }
 
   }
+
+
+  vector<float> testdata;
+  //
+  if (bool multi = 1) {
+    for (int i=0; i<n; ++i){
+      testdata.insert(testdata.end(), data.begin() + 4*i, data.begin() + 4*i+2);
+      float x = data[4*i], y = data[4*i+1], nx = data[4*i+2], ny = data[4*i+3];
+      float t = (rand()%2 + 1)/3.0;
+      float mx = (x+t*nx)/(1+t), my = (y+t*ny)/(1+t);
+      testdata.insert(testdata.end(), {mx, my, mx, my});
+      testdata.insert(testdata.end(), data.begin() + 4*i+2, data.begin() + 4*i+4);
+    }
+    data = testdata;
+    n*=2;
+  }
+  for (int i = 0; i<2*n; ++i){
+    cloud->push_back(pcl::PointXYZ(data[2*i], data[2*i+1], 0));
+  }
+
   assert(cloud->size() == 2*n);
   assert(data.size() == 4*n);
   int *ids;
   vector<pcl::Vertices> spolygons;
+
 //  vector<int> dbg;
-  bool test = 0;
+  bool test = 1;
   while(1){
+
+
+
     tri(data.data(), n, &ids/*, dbg*/);
 
     if (!test){

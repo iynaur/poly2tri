@@ -142,6 +142,7 @@ bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
 
   {
     stringstream log;
+    log<<seglen<<"\n";
     for (int i =0; i< 4*seglen; ++i) log<<seg[i]<<'\n';
     std::ofstream fout;
     fout.open("./input.txt");
