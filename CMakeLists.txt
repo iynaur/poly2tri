@@ -62,11 +62,7 @@ find_package(Qt5Core)
 find_package(Qt5Gui)
 
 find_package(PCL 1.8 REQUIRED)
-find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED COMPONENTS log system program_options)
-find_package(OpenCV REQUIRED)
-find_package(CUDA)
-include_directories("/usr/local/cuda-8.0/include")
 
 # libjsoncpp
 find_package(PkgConfig REQUIRED)
