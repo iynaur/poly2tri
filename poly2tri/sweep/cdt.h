@@ -41,8 +41,7 @@
  * @author Mason Green <mason.green@gmail.com>
  *
  */
- 
-namespace p2t {
+
 /**
  *  @tparam  seg    data of segments, every segment has 4 float datas.
  *  @tparam  seglen     count of segments, seg should contain 4*seglen float numbers.
@@ -57,8 +56,14 @@ namespace p2t {
  * point id of prev seg
  * ...
  */
-bool tri(float *seg, int seglen, int ** index/*, std::vector<int> &dbg*/);
-void freeIndex(int *p);
+extern "C"
+{
+__declspec(dllexport)  bool tri(float *seg, int seglen, int ** index/*, std::vector<int> &dbg*/);
+__declspec(dllexport)  void freeIndex(int *p);
+}
+
+ 
+namespace p2t {
 
 class CDT
 {

@@ -9,8 +9,6 @@ include_directories(${OPENGL_INCLUDE_DIR})
 find_package(GLU REQUIRED)
 include_directories(${GLU_INCLUDE_DIR})
 
-find_package(GLUT REQUIRED)
-include_directories(${GLUT_INCLUDE_DIR})
 
 file(GLOB poly2tri
  poly2tri/common/*.cc
@@ -23,15 +21,7 @@ add_library(${PROJECT_NAME}
  )
 
 
-add_executable(testbed
- testbed/main.cc
- )
 
-target_link_libraries(testbed
- ${PROJECT_NAME}
- -lglfw
- -lGL -lGLU -lGLEW
- )
 
 # PCL
 
@@ -63,25 +53,4 @@ find_package(Qt5Gui)
 
 find_package(PCL 1.8 REQUIRED)
 find_package(Boost REQUIRED COMPONENTS log system program_options)
-
-# libjsoncpp
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(LIBJSONCPP REQUIRED jsoncpp)
-find_path(LIBJSONCPP_INCLUDE_DIR json/json.h PATH_SUFFIXES jsoncpp)
-include_directories(${LIBJSONCPP_INCLUDE_DIR})
-
-
-link_directories(${PCL_LIBRARY_DIRS} "lib")
-add_definitions(${PCL_DEFINITIONS})
-include_directories(${PCL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
-
-add_executable(tri
- testbed/pcl.cc
- testbed/jsonfileopt.cpp
- )
-
-target_link_libraries(tri
-  ${PROJECT_NAME}
-  jsoncpp  ${PCL_LIBRARIES}
-  ${VTK_LIBRARIES})
 
