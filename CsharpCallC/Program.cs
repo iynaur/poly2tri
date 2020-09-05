@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Runtime.InteropServices;/// <summary>
+using System.Runtime.InteropServices;
+using System.Diagnostics;
+/// <summary>
 
 namespace CsharpCallC
 {
@@ -15,7 +17,7 @@ namespace CsharpCallC
 
         [DllImport("Project.dll", EntryPoint = "tri", CharSet = CharSet.Ansi)]
         //private static extern int fnTestWin32();
-        public static extern bool tri([In, MarshalAs(UnmanagedType.LPArray)] float[] seg, int seglen, ref IntPtr index);
+        public static extern int tri([In, MarshalAs(UnmanagedType.LPArray)] float[] seg, int seglen, ref IntPtr index);
         static void Main(string[] args)
         {
             List<float> data = new List<float>();
@@ -44,21 +46,19 @@ namespace CsharpCallC
             IntPtr p = new IntPtr(0);
 
             
-            tri(raw, 2 * N, ref p);
+            int len = tri(raw, 2 * N, ref p);
                 
 
-            int[] ans = new int[1];
-            Marshal.Copy(p, ans, 0, 1);
+            int[] ans = new int[len];
+            Marshal.Copy(p, ans, 0, len);
             int c = ans[0];
-            ans = new int[1 + c];
-            Marshal.Copy(p, ans, 0, 1 + c);
+            
             int tot = 0;
             for (int i= 0; i < ans[0]; ++i)
             {
                 tot += ans[i + 1];
             }
-            ans = new int[1 + c + 6 * tot];
-            Marshal.Copy(p, ans, 0, 1 + c + 6*tot);
+            Debug.Assert(6*tot + c + 1 == len);
             freeIndex(p);
 
 

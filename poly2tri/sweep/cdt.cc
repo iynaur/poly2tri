@@ -48,7 +48,7 @@ struct pair_hash {
     }
 };
 
-bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
+int tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
 {
     using namespace p2t;
     typedef long long lint;
@@ -72,7 +72,7 @@ bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
     }
 
     int trac = 6;
-    lint B = 1e18;
+    lint B = 1e10;
     for (int i = 0; i< seglen; ++i){
         vl lseg(4);
         for (int j = 0; j<4; ++j) lseg[j] = floor(B * seg[i*4 + j]);
@@ -211,13 +211,14 @@ bool tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
         fout.close();
     }
     //  dbg = ans;
-    return true;
+    return ans.size();
 }
 
 void freeIndex(int *p)
 {
     cout<<__FUNCTION__<<endl;
     delete[] p;
+    p = nullptr;
 }
 
 namespace p2t {

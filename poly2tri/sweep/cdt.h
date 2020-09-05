@@ -58,7 +58,7 @@
  */
 extern "C"
 {
-__declspec(dllexport)  bool tri(float *seg, int seglen, int ** index/*, std::vector<int> &dbg*/);
+__declspec(dllexport)  int tri(float *seg, int seglen, int ** index/*, std::vector<int> &dbg*/);
 __declspec(dllexport)  void freeIndex(int *p);
 }
 

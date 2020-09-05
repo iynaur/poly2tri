@@ -1,3 +1,7 @@
 CMakeLists.txt.user
 *.user.*
 CMakeLists.txt.user.22
+.vs/*
+*/bin/*
+*/obj/*
+/build/*
