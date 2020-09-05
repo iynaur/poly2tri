@@ -15,7 +15,7 @@ namespace CsharpCallC
 
         [DllImport("Project.dll", EntryPoint = "tri", CharSet = CharSet.Ansi)]
         //private static extern int fnTestWin32();
-        public static extern bool tri(IntPtr p, int seglen, ref IntPtr index);
+        public static extern bool tri([In, MarshalAs(UnmanagedType.LPArray)] float[] seg, int seglen, ref IntPtr index);
         static void Main(string[] args)
         {
             List<float> data = new List<float>();
@@ -41,14 +41,10 @@ namespace CsharpCallC
                 Console.WriteLine( "error\n");
             }
             
-            IntPtr buffer = Marshal.AllocHGlobal(8 * N * sizeof(float));
-            Marshal.Copy(raw, 0, buffer, 8*N);
-
-
             IntPtr p = new IntPtr(0);
 
             
-                tri(buffer, 2 * N, ref p);
+            tri(raw, 2 * N, ref p);
                 
 
             int[] ans = new int[1];
