@@ -56,10 +56,17 @@
  * point id of prev seg
  * ...
  */
+#ifdef linux
+#define API
+#else
+#define API __declspec(dllexport)
+#endif
+
+
 extern "C"
 {
-__declspec(dllexport)  int tri(float *seg, int seglen, int ** index/*, std::vector<int> &dbg*/);
-__declspec(dllexport)  void freeIndex(int *p);
+ API int tri(float *seg, int seglen, int ** index/*, std::vector<int> &dbg*/);
+API  void freeIndex(int *p);
 }
 
  
