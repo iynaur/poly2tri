@@ -11,29 +11,36 @@ namespace CsharpCallC
 {
     class Program
     {
-        [DllImport("Project.dll", EntryPoint = "freeIndex", CharSet = CharSet.Ansi)]
-        //private static extern int fnTestWin32();
+        [DllImport("libProject.so", EntryPoint = "freeIndex", CharSet = CharSet.Ansi)]
         public static extern void freeIndex(IntPtr p);
 
-        [DllImport("Project.dll", EntryPoint = "tri", CharSet = CharSet.Ansi)]
-        //private static extern int fnTestWin32();
+        [DllImport("libProject.so")]
         public static extern int tri([In, MarshalAs(UnmanagedType.LPArray)] float[] seg, int seglen, ref IntPtr index);
+
+        [DllImport("libProject.so")]
+        public static extern int qtGui();
+
+        [DllImport ("/lib/x86_64-linux-gnu/libc.so.6")]
+        private static extern int getpid ();
+
         static void Main(string[] args)
         {
+            qtGui();
+            Console.WriteLine(getpid ());
             List<float> data = new List<float>();
             int N = 100;
             Random rand = new Random();
             for (int i = 0; i < N; ++i)
             {
                 data.Add(i);
-                data.Add(0 + i%2/10.0f);
+                data.Add(0 );
                 data.Add(i+1);
-                data.Add(0 + (i+1) % 2 / 10.0f);
+                data.Add(0 );
 
                 data.Add(i);
-                data.Add(1 + i % 2 / 10.0f);
+                data.Add(1 );
                 data.Add(i + 1);
-                data.Add(1 + (i+1) % 2 / 10.0f);
+                data.Add(1 );
                 //+ (float)rand.NextDouble() / 3
             }
             float[] raw = data.ToArray();
@@ -45,21 +52,24 @@ namespace CsharpCallC
             
             IntPtr p = new IntPtr(0);
 
-            
-            int len = tri(raw, 2 * N, ref p);
-                
-
-            int[] ans = new int[len];
-            Marshal.Copy(p, ans, 0, len);
-            int c = ans[0];
-            
-            int tot = 0;
-            for (int i= 0; i < ans[0]; ++i)
+            int len = 0;
+            while (true)
             {
+              len = tri(raw, 2 * N, ref p);
+
+
+              int[] ans = new int[len];
+              Marshal.Copy(p, ans, 0, len);
+              int c = ans[0];
+
+              int tot = 0;
+              for (int i= 0; i < ans[0]; ++i)
+              {
                 tot += ans[i + 1];
+              }
+              Debug.Assert(6*tot + c + 1 == len);
+              freeIndex(p);
             }
-            Debug.Assert(6*tot + c + 1 == len);
-            freeIndex(p);
 
 
             System.Console.WriteLine("end");

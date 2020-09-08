@@ -66,7 +66,8 @@
 extern "C"
 {
  API int tri(float *seg, int seglen, int ** index/*, std::vector<int> &dbg*/);
-API  void freeIndex(int *p);
+ API void freeIndex(int *p);
+ API int qtGui();
 }
 
  

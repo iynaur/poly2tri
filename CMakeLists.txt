@@ -10,9 +10,26 @@ find_package(GLU REQUIRED)
 include_directories(${GLU_INCLUDE_DIR})
 
 
+
+
+#查找需要的Qt库文件，最好每一个库都要写，Qt也会根据依赖关系自动添加
+find_package(Qt5 COMPONENTS
+             Core
+             Widgets
+             Gui
+             OpenGL)
+
+find_package(Qt5Widgets)
+find_package(Qt5Core)
+find_package(Qt5Gui)
+ADD_DEFINITIONS (${QT_DEFINITIONS})
+
+set(QT_USE_QTMAIN TRUE)
+
 file(GLOB poly2tri
  poly2tri/common/*.cc
  poly2tri/sweep/*.cc
+ poly2tri/*.cc
  )
 
 add_library(${PROJECT_NAME}
@@ -46,11 +63,9 @@ set(CMAKE_AUTORCC ON)
 
 #set(CMAKE_PREFIX_PATH /deploy/dist CACHE PATH "" FORCE)
 
-#查找需要的Qt库文件，最好每一个库都要写，Qt也会根据依赖关系自动添加
-find_package(Qt5Widgets)
-find_package(Qt5Core)
-find_package(Qt5Gui)
+
 
 find_package(PCL 1.8 REQUIRED)
 find_package(Boost REQUIRED COMPONENTS log system program_options)
+qt5_use_modules(${PROJECT_NAME} Core Widgets Gui OpenGL )
 
