@@ -55,11 +55,15 @@ func = CDLL('./libProject.so')
 func.tri.restype = c_int
 T_int_ptr = c_void_p(0)
 cn = c_int32(n)
-result=func.tri(data, cn, byref(T_int_ptr))
-print(T_int_ptr)
-print(result)
 
-g = (ctypes.c_int32*result).from_address(T_int_ptr.value)
-for i in range(result):
-    print(g[i])
+while True:
+    result=func.tri(data, cn, byref(T_int_ptr))
+    print(T_int_ptr)
+    print(result)
+
+    g = (ctypes.c_int32*result).from_address(T_int_ptr.value)
+    for i in range(result):
+        print(g[i])
+
+    func.freeIndex(T_int_ptr)
 
