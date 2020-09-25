@@ -39,11 +39,6 @@ int main()
   vtkSmartPointer<vtkPolyDataMapper> inputMapper =vtkSmartPointer<vtkPolyDataMapper>::New();
   inputMapper->SetInputData(inputPolyData);
 
-  //创建切割平面
-  vtkSmartPointer<vtkPlane> plane =vtkSmartPointer<vtkPlane>::New();
-  plane->SetOrigin(inputPolyData->GetCenter());//设置切割平面起点
-  plane->SetNormal(1,0,0);//设置切割方向为X方向
-
   //得到输入的obj模型的最小坐标
   double minBound[3];
   minBound[0] = inputPolyData->GetBounds()[0];
@@ -62,15 +57,20 @@ int main()
   center[1] = inputPolyData->GetCenter()[1];
   center[2] = inputPolyData->GetCenter()[2];
 
-  double distanceMin=sqrt(Distance(minBound,center));
-  double distanceMax=sqrt(Distance(maxBound,center));
+  double distanceMin = inputPolyData->GetBounds()[4];
+  double distanceMax = inputPolyData->GetBounds()[5];
 
+  //创建切割平面
+  vtkSmartPointer<vtkPlane> plane =vtkSmartPointer<vtkPlane>::New();
+  srand(clock());
+  plane->SetOrigin(0, 0, distanceMin + (rand()%100 / 100.0)*(distanceMax - distanceMin));//设置切割平面起点
+  plane->SetNormal(0,0,1);//设置切割方向为X方向
 
   //创建模型切割器
   vtkSmartPointer<vtkCutter> cutter =vtkSmartPointer<vtkCutter>::New();
   cutter->SetCutFunction(plane);//设置切割平面
   cutter->SetInputData(inputPolyData);//设置模型
-  cutter->GenerateValues(30, -distanceMin, distanceMax);//在模型的最大最小范围内等间距创建30个切面，得到轮廓线
+//  cutter->GenerateValues(3, distanceMin + 0*(rand()%100 / 100.0)*(distanceMax - distanceMin), distanceMax);//在模型的最大最小范围内等间距创建30个切面，得到轮廓线
 
 
   //将切线结果输出为vtk文件格式
