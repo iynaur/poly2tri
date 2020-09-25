@@ -69,3 +69,23 @@ find_package(PCL 1.8 REQUIRED)
 find_package(Boost REQUIRED COMPONENTS log system program_options)
 qt5_use_modules(${PROJECT_NAME} Core Widgets Gui OpenGL )
 
+# libjsoncpp
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBJSONCPP REQUIRED jsoncpp)
+find_path(LIBJSONCPP_INCLUDE_DIR json/json.h PATH_SUFFIXES jsoncpp)
+include_directories(${LIBJSONCPP_INCLUDE_DIR})
+
+
+link_directories(${PCL_LIBRARY_DIRS} "lib")
+add_definitions(${PCL_DEFINITIONS})
+include_directories(${PCL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+
+add_executable(tri
+ testbed/pcl.cc
+ testbed/jsonfileopt.cpp
+ )
+
+target_link_libraries(tri
+  ${PROJECT_NAME}
+  jsoncpp  ${PCL_LIBRARIES}
+  ${VTK_LIBRARIES})

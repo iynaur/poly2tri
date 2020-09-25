@@ -4,4 +4,12 @@ CMakeLists.txt.user.22
 .vs/*
 */bin/*
 */obj/*
-/build/*
+/build/*CsharpCallC/ans.txt
+CsharpCallC/ans.txt
+CsharpCallC/input.txt
+CsharpCallC/Program.exe
+CsharpCallC/libProject.so
+CsharpCallC.userprefs
+ans.txt
+input.txt
+libProject.so

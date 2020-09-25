@@ -61,7 +61,7 @@ int tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
     std::unordered_map<pll, vector<pll>, pair_hash> mp;
     std::unordered_map<pll, pair<int, int>, pair_hash> mid;
 
-    if(0){
+    if(1){
         stringstream log;
         log<<seglen<<"\n";
         for (int i =0; i< 4*seglen; ++i) log<<seg[i]<<'\n';
@@ -72,7 +72,7 @@ int tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
     }
 
     int trac = 6;
-    lint B = 1e10;
+    lint B = 1e6;
     for (int i = 0; i< seglen; ++i){
         vl lseg(4);
         for (int j = 0; j<4; ++j) lseg[j] = floor(B * seg[i*4 + j]);
@@ -202,7 +202,7 @@ int tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
     int *ids = new int[ans.size()];
     memcpy(ids, ans.data(), ans.size() * sizeof(int));
     *index = ids;
-    if(0){
+    if(1){
         stringstream log;
         for (int i : ans) log<<i<<' ';
         std::ofstream fout;
