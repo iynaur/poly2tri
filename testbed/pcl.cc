@@ -116,6 +116,7 @@ int main()
   renderWindow->Render();
 
   interactor->Start();
+  system("pcl_viewer cut.vtk");
   return 0;
 
 }
