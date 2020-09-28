@@ -13,3 +13,4 @@ CsharpCallC.userprefs
 ans.txt
 input.txt
 libProject.so
+build/*
