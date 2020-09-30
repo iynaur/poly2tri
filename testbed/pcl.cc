@@ -14,6 +14,7 @@
 #include <vtkStripper.h>
 #include <vtkContourFilter.h>
 #include <vtkPoints.h>
+#include <vtkInteractorStyleSwitch.h>
 #include <iostream>
 using namespace std;
 
@@ -115,6 +116,7 @@ int main()
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
   interactor->SetRenderWindow(renderWindow);
   renderer->SetBackground(0,0,0);
+  dynamic_cast<vtkInteractorStyleSwitch*>(interactor->GetInteractorStyle()) ->SetCurrentStyleToTrackballCamera();
   renderWindow->Render();
 
   interactor->Start();
