@@ -115,7 +115,7 @@ int main()
         vtkSmartPointer<vtkRenderWindowInteractor>::New();
     interactor->SetRenderWindow(renderWindow);
     renderer->SetBackground(0,0,0);
-    dynamic_cast<vtkInteractorStyleSwitch*>(interactor->GetInteractorStyle()) ->SetCurrentStyleToTrackballCamera();
+    vtkInteractorStyleSwitch::SafeDownCast(interactor->GetInteractorStyle()) ->SetCurrentStyleToTrackballCamera();
     renderWindow->Render();
 
     interactor->Start();
