@@ -101,25 +101,25 @@ int main()
   inputActor->GetProperty()->SetColor(0,1,0);
   inputActor->SetMapper(inputMapper);
 
+  {
+    vtkSmartPointer<vtkRenderer> renderer =
+      vtkSmartPointer<vtkRenderer>::New();
+    renderer->AddActor(planeActor);
+    renderer->AddActor(inputActor);
 
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::New();
-  renderer->AddActor(planeActor);
-  renderer->AddActor(inputActor);
+    vtkSmartPointer<vtkRenderWindow> renderWindow =
+      vtkSmartPointer<vtkRenderWindow>::New();
+    renderWindow->AddRenderer(renderer);
+    renderWindow->SetSize(600, 600);
+    vtkSmartPointer<vtkRenderWindowInteractor> interactor =
+        vtkSmartPointer<vtkRenderWindowInteractor>::New();
+    interactor->SetRenderWindow(renderWindow);
+    renderer->SetBackground(0,0,0);
+    dynamic_cast<vtkInteractorStyleSwitch*>(interactor->GetInteractorStyle()) ->SetCurrentStyleToTrackballCamera();
+    renderWindow->Render();
 
-  vtkSmartPointer<vtkRenderWindow> renderWindow =
-    vtkSmartPointer<vtkRenderWindow>::New();
-  renderWindow->AddRenderer(renderer);
-  renderWindow->SetSize(600, 600);
-
-  vtkSmartPointer<vtkRenderWindowInteractor> interactor =
-    vtkSmartPointer<vtkRenderWindowInteractor>::New();
-  interactor->SetRenderWindow(renderWindow);
-  renderer->SetBackground(0,0,0);
-  dynamic_cast<vtkInteractorStyleSwitch*>(interactor->GetInteractorStyle()) ->SetCurrentStyleToTrackballCamera();
-  renderWindow->Render();
-
-  interactor->Start();
+    interactor->Start();
+  }
   system("pcl_viewer cut.vtk");
   return 0;
 
