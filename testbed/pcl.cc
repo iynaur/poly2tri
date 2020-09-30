@@ -1,126 +1,119 @@
-#include <vtkOBJReader.h>
-#include <vtkSmartPointer.h>
-#include <vtkCutter.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkPlane.h>
-#include <vtkProperty.h>
-#include <vtkActor.h>
-#include <vtkRenderer.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkSphereSource.h>
-#include <vtkPolyDataWriter.h>
-#include <vtkPolyData.h>
-#include <vtkStripper.h>
-#include <vtkContourFilter.h>
-#include <vtkPoints.h>
-#include <vtkInteractorStyleSwitch.h>
 #include <iostream>
+#include <pcl/common/common.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/io/ply_io.h>
+#include <pcl/search/kdtree.h>
+#include <pcl/features/normal_3d_omp.h>
+#include <pcl/point_types.h>
+#include <pcl/surface/mls.h>
+#include <pcl/filters/passthrough.h>
+#include <pcl/visualization/pcl_visualizer.h>
+#include <boost/thread/thread.hpp>
+//#define PCL_NO_PRECOMPILE
+#include <pcl/surface/poisson.h>
+
+using namespace pcl;
 using namespace std;
 
-
-double Distance(double *a,double *b)
-{
-  double o=(a[0]-b[0])*(a[0]-b[0]);
-  double p=(a[1]-b[1])*(a[1]-b[1]);
-  double q=(a[2]-b[2])*(a[2]-b[2]);
-  return o+p+q;
-}
-int main()
+int
+main (int argc, char** argv)
 {
 
-  //读取obj文件
-  vtkSmartPointer<vtkOBJReader> reader =vtkSmartPointer<vtkOBJReader>::New();
-  reader->SetFileName("./1.obj");
-  reader->Update();
 
-  vtkSmartPointer<vtkPolyData> inputPolyData=vtkSmartPointer<vtkPolyData>::New();
-  inputPolyData = reader->GetOutput();
+        /*点云读入阶段*/
+        if(argc <= 2) {
+                cout << "请输入点云数据文件名称，并指定输出数据文件名称" << endl;
+                return 1;
 
-  vtkSmartPointer<vtkPolyDataMapper> inputMapper =vtkSmartPointer<vtkPolyDataMapper>::New();
-  inputMapper->SetInputData(inputPolyData);
+        }
+        PointCloud<PointXYZ>::Ptr cloud (new PointCloud<PointXYZ>);
+        if(io::loadPCDFile<PointXYZ> (argv[1], *cloud) == -1){
+                cout << "数据读入失败！！" << endl;
 
-  //得到输入的obj模型的最小坐标
-  double minBound[3];
-  minBound[0] = inputPolyData->GetBounds()[0];
-  minBound[1] = inputPolyData->GetBounds()[2];
-  minBound[2] = inputPolyData->GetBounds()[4];
+                return 1;
+        }
+        cout << "数据读入　　　完成" << endl;
 
-  //得到输入的obj模型的最小大坐标
-  double maxBound[3];
-  maxBound[0] = inputPolyData->GetBounds()[1];
-  maxBound[1] = inputPolyData->GetBounds()[3];
-  maxBound[2] = inputPolyData->GetBounds()[5];
+        /*滤波阶段*/
+        PointCloud<PointXYZ>::Ptr filtered(new PointCloud<PointXYZ>());
+        PassThrough<PointXYZ> filter;
+        filter.setInputCloud(cloud);
+        filter.filter(*filtered);
+        cout << "低通滤波　　　完成" << endl;
 
-  //得到输入的obj模型的中心坐标
-  double center[3];
-  center[0] = inputPolyData->GetCenter()[0];
-  center[1] = inputPolyData->GetCenter()[1];
-  center[2] = inputPolyData->GetCenter()[2];
+        // MovingLeastSquares<PointXYZ, PointXYZ> mls;
+        // mls.setInputCloud(filtered);
+        // mls.setSearchRadius(0.01);
+        // mls.setPolynomialFit(true);
+        // mls.setPolynomialOrder(2);
+        // mls.setUpsamplingMethod(MovingLeastSquares<PointXYZ, PointXYZ>::SAMPLE_LOCAL_PLANE);
+        // mls.setUpsamplingRadius(0.005);
+        // mls.setUpsamplingStepSize(0.003);
 
-  double distanceMin = inputPolyData->GetBounds()[4];
-  double distanceMax = inputPolyData->GetBounds()[5];
-
-  //创建切割平面
-  vtkSmartPointer<vtkPlane> plane =vtkSmartPointer<vtkPlane>::New();
-  int s = clock();
-  cerr<<s<<endl;
-  srand(s);
-  plane->SetOrigin(0, 0, 0/*distanceMin + (rand()%100 / 100.0)*(distanceMax - distanceMin)*/);//设置切割平面起点
-  plane->SetNormal(0,0,1);//设置切割方向为X方向
-
-  //创建模型切割器
-  vtkSmartPointer<vtkCutter> cutter =vtkSmartPointer<vtkCutter>::New();
-  cutter->SetCutFunction(plane);//设置切割平面
-  cutter->SetInputData(inputPolyData);//设置模型
-  cutter->GenerateValues(5, distanceMin + (rand()%100 / 100.0)*(distanceMax - distanceMin), distanceMax);//在模型的最大最小范围内等间距创建30个切面，得到轮廓线
+        // PointCloud<PointXYZ>::Ptr cloud_smoothed (new PointCloud<PointXYZ>());
+        // mls.process(*cloud_smoothed);
+        // cout << "移动最小二乘平面滤波完成" << endl;
 
 
-  //将切线结果输出为vtk文件格式
-  vtkSmartPointer<vtkPolyData> ResultPoly=cutter->GetOutput();//输出为polydata
-  vtkSmartPointer<vtkPolyDataWriter> vtkWriter = vtkSmartPointer<vtkPolyDataWriter>::New();
-  vtkWriter->SetInputConnection(cutter->GetOutputPort());
 
-  vtkWriter->SetFileName("cut.vtk");
-  vtkWriter->Write();
+        /*法向计算阶段*/
+        NormalEstimationOMP<PointXYZ, Normal> ne;
+        ne.setNumberOfThreads(8);
+        ne.setInputCloud(filtered);
+        ne.setRadiusSearch(0.1);
+        Eigen::Vector4f centroid;
+        compute3DCentroid(*filtered, centroid);
+        ne.setViewPoint(centroid[0], centroid[1], centroid[2]);
+
+        PointCloud<Normal>::Ptr cloud_normals (new PointCloud<Normal>());
+        ne.compute(*cloud_normals);
+
+        for(size_t i = 0; i < cloud_normals->size(); ++i){
+                cloud_normals->points[i].normal_x *= -1;
+                cloud_normals->points[i].normal_y *= -1;
+                cloud_normals->points[i].normal_z *= -1;
+        }
 
 
-  vtkSmartPointer<vtkPolyDataMapper> cutterMapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
-  cutterMapper->SetInputConnection( cutter->GetOutputPort());
-  cutterMapper->ScalarVisibilityOff();
+        PointCloud<PointNormal>::Ptr cloud_smoothed_normals(new PointCloud<PointNormal>());
+        //将点云数据的坐标和法向信息拼接
+        concatenateFields(*filtered, *cloud_normals, *cloud_smoothed_normals);
 
-  vtkSmartPointer<vtkActor> planeActor =
-    vtkSmartPointer<vtkActor>::New();
-  planeActor->GetProperty()->SetColor(1,0,0);
-  planeActor->GetProperty()->SetLineWidth(5);
-  planeActor->SetMapper(cutterMapper);
+        cout << "法向计算　　　完成" << endl;
 
-  vtkSmartPointer<vtkActor> inputActor =
-    vtkSmartPointer<vtkActor>::New();
-  inputActor->GetProperty()->SetColor(0,1,0);
-  inputActor->SetMapper(inputMapper);
 
-  {
-    vtkSmartPointer<vtkRenderer> renderer =
-      vtkSmartPointer<vtkRenderer>::New();
-    renderer->AddActor(planeActor);
-    renderer->AddActor(inputActor);
 
-    vtkSmartPointer<vtkRenderWindow> renderWindow =
-      vtkSmartPointer<vtkRenderWindow>::New();
-    renderWindow->AddRenderer(renderer);
-    renderWindow->SetSize(600, 600);
-    vtkSmartPointer<vtkRenderWindowInteractor> interactor =
-        vtkSmartPointer<vtkRenderWindowInteractor>::New();
-    interactor->SetRenderWindow(renderWindow);
-    renderer->SetBackground(0,0,0);
-    vtkInteractorStyleSwitch::SafeDownCast(interactor->GetInteractorStyle()) ->SetCurrentStyleToTrackballCamera();
-    renderWindow->Render();
+        /*poission 重建阶段*/
+        //创建poisson重建对象
+        Poisson<PointNormal> poisson;
+        // poisson.setDepth(9);
+        //输入poisson重建点云数据
+        poisson.setInputCloud(cloud_smoothed_normals);
+        //创建网格对象指针，用于存储重建结果
+        PolygonMesh mesh;
+        //poisson重建开始
+        poisson.reconstruct(mesh);
 
-    interactor->Start();
-  }
-  system("pcl_viewer cut.vtk");
-  return 0;
+        //将重建结果存储到硬盘，并保存为PLY格式
+        io::savePLYFile(argv[2], mesh);
+        cout << "曲面重建　　　完成" << endl;
 
+
+        /*图形显示阶段*/
+        cout << "开始图形显示......" << endl;
+        boost::shared_ptr<pcl::visualization::PCLVisualizer>viewer(new pcl::visualization::PCLVisualizer("my viewer"));
+
+//        viewer->setBackgroundColor(0,0,7);
+        viewer->addPolygonMesh(mesh, "my");
+//        viewer->addCoordinateSystem(50.0);
+        viewer->initCameraParameters();
+
+        while(!viewer->wasStopped()){
+
+                viewer->spinOnce(100);
+                boost::this_thread::sleep(boost::posix_time::microseconds(100000));
+        }
+
+
+        return (0);
 }
