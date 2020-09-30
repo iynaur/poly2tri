@@ -66,14 +66,14 @@ int main()
   int s = clock();
   cerr<<s<<endl;
   srand(s);
-  plane->SetOrigin(0, 0, distanceMin + (rand()%100 / 100.0)*(distanceMax - distanceMin));//设置切割平面起点
+  plane->SetOrigin(0, 0, 0/*distanceMin + (rand()%100 / 100.0)*(distanceMax - distanceMin)*/);//设置切割平面起点
   plane->SetNormal(0,0,1);//设置切割方向为X方向
 
   //创建模型切割器
   vtkSmartPointer<vtkCutter> cutter =vtkSmartPointer<vtkCutter>::New();
   cutter->SetCutFunction(plane);//设置切割平面
   cutter->SetInputData(inputPolyData);//设置模型
-//  cutter->GenerateValues(3, distanceMin + 0*(rand()%100 / 100.0)*(distanceMax - distanceMin), distanceMax);//在模型的最大最小范围内等间距创建30个切面，得到轮廓线
+  cutter->GenerateValues(5, distanceMin + (rand()%100 / 100.0)*(distanceMax - distanceMin), distanceMax);//在模型的最大最小范围内等间距创建30个切面，得到轮廓线
 
 
   //将切线结果输出为vtk文件格式
