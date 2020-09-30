@@ -62,7 +62,9 @@ int main()
 
   //创建切割平面
   vtkSmartPointer<vtkPlane> plane =vtkSmartPointer<vtkPlane>::New();
-  srand(clock());
+  int s = clock();
+  cerr<<s<<endl;
+  srand(s);
   plane->SetOrigin(0, 0, distanceMin + (rand()%100 / 100.0)*(distanceMax - distanceMin));//设置切割平面起点
   plane->SetNormal(0,0,1);//设置切割方向为X方向
 
