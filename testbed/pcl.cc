@@ -222,7 +222,7 @@ int main(int argc, char* argv[]){
   vector<pcl::Vertices> spolygons;
 
 //  vector<int> dbg;
-  bool test = 1;
+  bool test = 0;
   while(1){
 
 

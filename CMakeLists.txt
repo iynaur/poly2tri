@@ -69,3 +69,16 @@ find_package(PCL 1.8 REQUIRED)
 find_package(Boost REQUIRED COMPONENTS log system program_options)
 qt5_use_modules(${PROJECT_NAME} Core Widgets Gui OpenGL )
 
+link_directories(${PCL_LIBRARY_DIRS} "lib")
+add_definitions(${PCL_DEFINITIONS})
+include_directories(${PCL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+
+add_executable(tri
+ testbed/pcl.cc
+ testbed/jsonfileopt.cpp
+ )
+
+target_link_libraries(tri
+  ${PROJECT_NAME}
+  jsoncpp  ${PCL_LIBRARIES}
+  ${VTK_LIBRARIES})

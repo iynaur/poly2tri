@@ -36,6 +36,8 @@
 #include <algorithm>
 #include <sstream>
 #include <fstream>
+#include <pcl/surface/ear_clipping.h>
+#include <pcl/io/pcd_io.h>
 
 using namespace std;
 
@@ -50,7 +52,7 @@ struct pair_hash {
 
 int tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
 {
-    using namespace p2t;
+    //using namespace p2t;
     typedef long long lint;
     typedef vector<int> vi;
     typedef pair<int,int> pii;
@@ -169,25 +171,54 @@ int tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
     }
     for (int i = 0; i< polys.size(); ++i) {
         auto poly = polys[i];
-        vector<p2t::Point*> polyline;
-
+        pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>());
         for (pll ns : poly) {
-            float* fp = to_real[ns];
-            polyline.push_back(new  Point(fp[0], fp[1]));
+          float* fp = to_real[ns];
+          cloud->push_back(pcl::PointXYZ(fp[0], fp[1], 0));
         }
+        using namespace pcl;
+        Vertices vertices;
+          vertices.vertices.resize (cloud->points.size ());
+          for (int i = 0; i < static_cast<int> (vertices.vertices.size ()); ++i)
+            vertices.vertices[i] = i;
 
-        CDT* cdt = new CDT(polyline);
+          PolygonMesh::Ptr mesh (new PolygonMesh);
+          pcl::toPCLPointCloud2 (*cloud, mesh->cloud);
+          mesh->polygons.push_back (vertices);
 
-        cdt->Triangulate();
-        std::vector<std::vector<int> > triids= cdt->GetTrianglesIndexOfUnsortInput();
-        for (auto p : polyline){
-            delete p;
-        }
-        delete cdt;
+          EarClipping clipper;
+//          PolygonMesh::ConstPtr mesh_aux (mesh);
+          clipper.setInputMesh (mesh);
+
+          PolygonMesh triangulated_mesh;
+          clipper.process (triangulated_mesh);
+          std::vector<std::vector<unsigned int> > triids;
+          for (Vertices v : triangulated_mesh.polygons){
+
+            triids.push_back(v.vertices);
+          }
+
+//        {
+//          vector<p2t::Point*> polyline;
+
+//          for (pll ns : poly) {
+//            float* fp = to_real[ns];
+//            polyline.push_back(new  Point(fp[0], fp[1]));
+//          }
+
+//          CDT* cdt = new CDT(polyline);
+
+//          cdt->Triangulate();
+//          std::vector<std::vector<int> > triids= cdt->GetTrianglesIndexOfUnsortInput();
+//          for (auto p : polyline){
+//            delete p;
+//          }
+//          delete cdt;
+//        }
 
         ans[i+1] = (triids.size());
         {
-            for (vector<int> tri : triids){
+            for (auto tri : triids){
                 for(int id : tri){
 
                     ans.push_back(mid[poly[id]].first);
