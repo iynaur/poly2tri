@@ -200,7 +200,7 @@ int main(int argc, char* argv[]){
 
   vector<float> testdata;
   //
-  if (bool multi = 1) {
+  if (bool multi = 0) {
     for (int i=0; i<n; ++i){
       testdata.insert(testdata.end(), data.begin() + 4*i, data.begin() + 4*i+2);
       float x = data[4*i], y = data[4*i+1], nx = data[4*i+2], ny = data[4*i+3];

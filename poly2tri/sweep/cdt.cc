@@ -37,6 +37,7 @@
 #include <sstream>
 #include <fstream>
 #include <pcl/surface/ear_clipping.h>
+#include "my_ear_cut.h"
 #include <pcl/io/pcd_io.h>
 
 using namespace std;
@@ -74,7 +75,7 @@ int tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
     }
 
     int trac = 6;
-    lint B = 1e10;
+    lint B = 1e7;
     for (int i = 0; i< seglen; ++i){
         vl lseg(4);
         for (int j = 0; j<4; ++j) lseg[j] = floor(B * seg[i*4 + j]);
@@ -186,7 +187,7 @@ int tri(float *seg, int seglen, int **index/*, vector<int> &dbg*/)
           pcl::toPCLPointCloud2 (*cloud, mesh->cloud);
           mesh->polygons.push_back (vertices);
 
-          EarClipping clipper;
+          MyEarClipping clipper;
 //          PolygonMesh::ConstPtr mesh_aux (mesh);
           clipper.setInputMesh (mesh);
 
