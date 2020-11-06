@@ -71,10 +71,11 @@ find_package(Boost REQUIRED COMPONENTS log system program_options)
 qt5_use_modules(${PROJECT_NAME} Core Widgets Gui OpenGL )
 
 # libjsoncpp
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(LIBJSONCPP REQUIRED jsoncpp)
-find_path(LIBJSONCPP_INCLUDE_DIR json/json.h PATH_SUFFIXES jsoncpp)
-include_directories(${LIBJSONCPP_INCLUDE_DIR})
+find_package(jsoncpp CONFIG REQUIRED)
+get_target_property(JSON_INC_PATH jsoncpp_lib INTERFACE_INCLUDE_DIRECTORIES)
+include_directories(${JSON_INC_PATH})
+message("=======")
+message(${JSON_INC_PATH})
 
 
 link_directories(${PCL_LIBRARY_DIRS} "lib")
@@ -88,5 +89,5 @@ add_executable(tri
 
 target_link_libraries(tri
   ${PROJECT_NAME}
-  jsoncpp  ${PCL_LIBRARIES}
+   jsoncpp_lib ${PCL_LIBRARIES}
   ${VTK_LIBRARIES})

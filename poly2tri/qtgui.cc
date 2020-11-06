@@ -7,6 +7,6 @@ int qtGui(){
   auto window = new QFileDialog;
   window->show();
   app.exec();
-
+  return 0;
 }
 

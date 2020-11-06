@@ -1,0 +1,72 @@
+﻿{
+  "configurations": [
+    {
+      "name": "x64-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "variables": [
+        {
+          "name": "Qt5_DIR",
+          "value": "C:/Qt/Qt5.12.9/5.12.9/msvc2017_64/lib/cmake/Qt5",
+          "type": "PATH"
+        },
+        {
+          "name": "VTK_DIR",
+          "value": "C:/Program Files (x86)/VTK/lib/cmake/vtk-8.2",
+          "type": "PATH"
+        },
+        {
+          "name": "Boost_INCLUDE_DIR",
+          "value": "C:/Program Files/PCL 1.11.1/3rdParty/Boost/include/boost-1_74",
+          "type": "PATH"
+        },
+        {
+          "name": "Boost_DATE_TIME_LIBRARY_DEBUG",
+          "value": "C:/Program Files/PCL 1.11.1/3rdParty/Boost/lib/libboost_date_time-vc142-mt-gd-x64-1_74.lib",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "Boost_DATE_TIME_LIBRARY_RELEASE",
+          "value": "C:/Program Files/PCL 1.11.1/3rdParty/Boost/lib/libboost_date_time-vc142-mt-x64-1_74.lib",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "Boost_FILESYSTEM_LIBRARY_DEBUG",
+          "value": "C:/Program Files/PCL 1.11.1/3rdParty/Boost/lib/libboost_filesystem-vc142-mt-gd-x64-1_74.lib",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "Boost_FILESYSTEM_LIBRARY_RELEASE",
+          "value": "C:/Program Files/PCL 1.11.1/3rdParty/Boost/lib/libboost_filesystem-vc142-mt-x64-1_74.lib",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "Boost_SYSTEM_LIBRARY_DEBUG",
+          "value": "C:/Program Files/PCL 1.11.1/3rdParty/Boost/lib/libboost_system-vc142-mt-gd-x64-1_74.lib",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "Boost_SYSTEM_LIBRARY_RELEASE",
+          "value": "C:/Program Files/PCL 1.11.1/3rdParty/Boost/lib/libboost_system-vc142-mt-x64-1_74.lib",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "PCL_DIR",
+          "value": "C:/Program Files (x86)/PCL/cmake",
+          "type": "PATH"
+        },
+        {
+          "name": "JSONCPP_DIR",
+          "value": "C:/dev/vcpkg/installed/x64-windows/share/jsoncpp",
+          "type": "PATH"
+        }
+      ]
+    }
+  ]
+}

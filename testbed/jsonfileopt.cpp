@@ -1,8 +1,8 @@
 #include "jsonfileopt.h"
 #include <fstream>
 #include <sstream>
-#include <jsoncpp/json/reader.h>
-#include <jsoncpp/json/writer.h>
+#include <json/reader.h>
+#include <json/writer.h>
 
 
 void jsonfileopt::file2json(std::string config_file, Json::Value &offsetOption)
