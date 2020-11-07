@@ -65,6 +65,26 @@
           "name": "JSONCPP_DIR",
           "value": "C:/dev/vcpkg/installed/x64-windows/share/jsoncpp",
           "type": "PATH"
+        },
+        {
+          "name": "FLANN_LIBRARY",
+          "value": "C:/Program Files/PCL 1.11.1/3rdParty/FLANN/lib/flann_cpp_s.lib",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "FLANN_LIBRARY_DEBUG",
+          "value": "C:/Program Files/PCL 1.11.1/3rdParty/FLANN/lib/flann_cpp_s-gd.lib",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "flann_DIR",
+          "value": "C:/Program Files/PCL 1.11.1/3rdParty/FLANN",
+          "type": "PATH"
+        },
+        {
+          "name": "FLANN_INCLUDE_DIR",
+          "value": "C:/Program Files/PCL 1.11.1/3rdParty/FLANN/include",
+          "type": "PATH"
         }
       ]
     }

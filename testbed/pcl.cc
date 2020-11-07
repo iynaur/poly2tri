@@ -19,15 +19,12 @@ int
 main (int argc, char** argv)
 {
 
-
+    string filename;
+    cin >> filename;
         /*点云读入阶段*/
-        if(argc <= 2) {
-                cout << "请输入点云数据文件名称，并指定输出数据文件名称" << endl;
-                return 1;
-
-        }
+       
         PointCloud<PointXYZ>::Ptr cloud (new PointCloud<PointXYZ>);
-        if(io::loadPCDFile<PointXYZ> (argv[1], *cloud) == -1){
+        if(io::loadPCDFile<PointXYZ> (filename, *cloud) == -1){
                 cout << "数据读入失败！！" << endl;
 
                 return 1;
@@ -58,9 +55,8 @@ main (int argc, char** argv)
 
         /*法向计算阶段*/
         NormalEstimationOMP<PointXYZ, Normal> ne;
-        ne.setNumberOfThreads(8);
         ne.setInputCloud(filtered);
-        ne.setRadiusSearch(0.1);
+        ne.setRadiusSearch(0.02);
         Eigen::Vector4f centroid;
         compute3DCentroid(*filtered, centroid);
         ne.setViewPoint(centroid[0], centroid[1], centroid[2]);
@@ -68,7 +64,7 @@ main (int argc, char** argv)
         PointCloud<Normal>::Ptr cloud_normals (new PointCloud<Normal>());
         ne.compute(*cloud_normals);
 
-        for(size_t i = 0; i < cloud_normals->size(); ++i){
+        if (0) for(size_t i = 0; i < cloud_normals->size(); ++i){
                 cloud_normals->points[i].normal_x *= -1;
                 cloud_normals->points[i].normal_y *= -1;
                 cloud_normals->points[i].normal_z *= -1;
@@ -95,7 +91,7 @@ main (int argc, char** argv)
         poisson.reconstruct(mesh);
 
         //将重建结果存储到硬盘，并保存为PLY格式
-        io::savePLYFile(argv[2], mesh);
+        io::savePLYFile(filename + ".ply", mesh);
         cout << "曲面重建　　　完成" << endl;
 
 

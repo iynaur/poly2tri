@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.0.0)
 project(poly2tri)
 set(CMAKE_CXX_STANDARD 11)
 
+add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+
 
 find_package( OpenGL REQUIRED )
 include_directories(${OPENGL_INCLUDE_DIR})
@@ -66,28 +69,42 @@ set(CMAKE_AUTORCC ON)
 
 
 
-find_package(PCL 1.8 REQUIRED)
-find_package(Boost REQUIRED COMPONENTS log system program_options)
+find_package(PCL REQUIRED)
+#PCL
+include_directories (${PCL_INCLUDE_DIRS})
+include_directories (${OpenCV_INCLUDE_DIRS})
+link_directories    (${PCL_LIBRARY_DIRS})
+add_definitions     (${PCL_DEFINITIONS})
+message("===========${Boost_LIBRARIES}")
+message("===========${Boost_INCLUDE_DIRS}")
+
 qt5_use_modules(${PROJECT_NAME} Core Widgets Gui OpenGL )
 
 # libjsoncpp
 find_package(jsoncpp CONFIG REQUIRED)
+message("===${INTERFACE_INCLUDE_DIRECTORIES}")
 get_target_property(JSON_INC_PATH jsoncpp_lib INTERFACE_INCLUDE_DIRECTORIES)
-include_directories(${JSON_INC_PATH})
+include_directories("${JSON_INC_PATH}/jsoncpp")
 message("=======")
 message(${JSON_INC_PATH})
 
 
-link_directories(${PCL_LIBRARY_DIRS} "lib")
+#link_directories(${PCL_LIBRARY_DIRS} "lib")
 add_definitions(${PCL_DEFINITIONS})
-include_directories(${PCL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+include_directories(${PCL_INCLUDE_DIRS} 
+#${Boost_INCLUDE_DIRS}
+)
 
-add_executable(tri
+add_executable(tri 
  testbed/pcl.cc
  testbed/jsonfileopt.cpp
  )
 
+ find_package(Boost REQUIRED COMPONENTS log system program_options thread)
+
 target_link_libraries(tri
   ${PROJECT_NAME}
    jsoncpp_lib ${PCL_LIBRARIES}
-  ${VTK_LIBRARIES})
+  ${VTK_LIBRARIES}
+   ${Boost_LIBRARIES}
+  )
