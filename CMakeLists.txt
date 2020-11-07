@@ -43,7 +43,7 @@ add_library(${PROJECT_NAME}
 
 
 
-
+set(BOOST_ROOT "C:/Program Files/PCL 1.11.1/3rdParty/Boost")
 # PCL
 
 FIND_PACKAGE( OpenMP REQUIRED)
