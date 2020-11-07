@@ -31,12 +31,7 @@ main (int argc, char** argv)
         }
         cout << "数据读入　　　完成" << endl;
 
-        /*滤波阶段*/
-        PointCloud<PointXYZ>::Ptr filtered(new PointCloud<PointXYZ>());
-        PassThrough<PointXYZ> filter;
-        filter.setInputCloud(cloud);
-        filter.filter(*filtered);
-        cout << "低通滤波　　　完成" << endl;
+      
 
         // MovingLeastSquares<PointXYZ, PointXYZ> mls;
         // mls.setInputCloud(filtered);
@@ -55,13 +50,13 @@ main (int argc, char** argv)
 
         /*法向计算阶段*/
         NormalEstimationOMP<PointXYZ, Normal> ne;
-        ne.setInputCloud(filtered);
+        ne.setInputCloud(cloud);
         ne.setRadiusSearch(0.02);
         Eigen::Vector4f centroid;
-        compute3DCentroid(*filtered, centroid);
-        ne.setViewPoint(centroid[0], centroid[1], centroid[2]);
+        
 
         PointCloud<Normal>::Ptr cloud_normals (new PointCloud<Normal>());
+        ne.setViewPoint(0, 0, -1000);
         ne.compute(*cloud_normals);
 
         if (0) for(size_t i = 0; i < cloud_normals->size(); ++i){
@@ -73,7 +68,7 @@ main (int argc, char** argv)
 
         PointCloud<PointNormal>::Ptr cloud_smoothed_normals(new PointCloud<PointNormal>());
         //将点云数据的坐标和法向信息拼接
-        concatenateFields(*filtered, *cloud_normals, *cloud_smoothed_normals);
+        concatenateFields(*cloud, *cloud_normals, *cloud_smoothed_normals);
 
         cout << "法向计算　　　完成" << endl;
 
