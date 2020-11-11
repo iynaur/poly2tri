@@ -84,16 +84,20 @@ qt5_use_modules(${PROJECT_NAME} Core Widgets Gui OpenGL )
 find_package(jsoncpp CONFIG REQUIRED)
 message("===${INTERFACE_INCLUDE_DIRECTORIES}")
 get_target_property(JSON_INC_PATH jsoncpp_lib INTERFACE_INCLUDE_DIRECTORIES)
-include_directories("${JSON_INC_PATH}/jsoncpp")
+include_directories("${JSON_INC_PATH}/json")
 message("=======")
 message(${JSON_INC_PATH})
 
 
+find_package(flann)
 #link_directories(${PCL_LIBRARY_DIRS} "lib")
 add_definitions(${PCL_DEFINITIONS})
 include_directories(${PCL_INCLUDE_DIRS} 
 #${Boost_INCLUDE_DIRS}
+${FLANN_INCLUDE_DIR}
 )
+message("===flann")
+message(${FLANN_INCLUDE_DIR})
 
 add_executable(tri 
  testbed/pcl.cc
@@ -107,4 +111,16 @@ target_link_libraries(tri
    jsoncpp_lib ${PCL_LIBRARIES}
   ${VTK_LIBRARIES}
    ${Boost_LIBRARIES}
-  )
+)
+
+
+add_library(pcdReader SHARED
+    pcdReader.cpp
+    testbed/jsonfileopt.cpp
+)
+target_link_libraries(pcdReader
+  
+   jsoncpp_lib ${PCL_LIBRARIES}
+  ${VTK_LIBRARIES}
+   ${Boost_LIBRARIES}
+)

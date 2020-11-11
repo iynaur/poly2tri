@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using System.Web.Script.Serialization;
 /// <summary>
 
 namespace CsharpCallC
@@ -25,6 +26,16 @@ namespace CsharpCallC
 
         static void Main(string[] args)
         {
+            string input = "[{error: \"Account with that email exists\"}]";
+            var jss = new JavaScriptSerializer();
+
+            var array = jss.Deserialize<object[]>(input);
+            var dict = array[0] as Dictionary<string, object>;
+            Console.WriteLine(dict["error"]);
+
+            // More short with dynamic
+            dynamic d = jss.DeserializeObject(input);
+            Console.WriteLine(d[0]["error"]);
             qtGui();
             Console.WriteLine(getpid ());
             List<float> data = new List<float>();
