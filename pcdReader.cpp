@@ -34,7 +34,7 @@ std::string WstringToString(const std::wstring& wstr)
 using namespace std;
 
 void saveString2File(string content, string filename) {
-	if (0) {
+	if (1) {
 		
 		std::ofstream fout;
 		fout.open(filename);
@@ -64,11 +64,16 @@ string readPcdFile(string filename) {
 }
 
 int readPCD(char* filename, int slen, char** index) {
+	saveString2File("", "into c++ readPCD.txt");
 	wstring files = wstring(slen, ' ');
 	memcpy((void*)files.data(), filename, slen*sizeof(wchar_t));
+	saveString2File("", "before WstringToString.txt");
 	saveString2File(WstringToString(files), "pcdfilename.txt");
+	saveString2File("", "after WstringToString.txt");
 	string ans = readPcdFile(WstringToString(files));
+	saveString2File("", "after load pcd.txt");
 	wstring wans = StringToWstring(ans);
+	saveString2File("", "after StringToWstring.txt");
 	char* res = new char[wans.size()*sizeof(wchar_t)];
 	memcpy(res, wans.data(), wans.size() * sizeof(wchar_t));
 	*index = res;

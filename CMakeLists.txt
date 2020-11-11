@@ -99,19 +99,7 @@ ${FLANN_INCLUDE_DIR}
 message("===flann")
 message(${FLANN_INCLUDE_DIR})
 
-add_executable(tri 
- testbed/pcl.cc
- testbed/jsonfileopt.cpp
- )
 
- find_package(Boost REQUIRED COMPONENTS log system program_options thread)
-
-target_link_libraries(tri
-  ${PROJECT_NAME}
-   jsoncpp_lib ${PCL_LIBRARIES}
-  ${VTK_LIBRARIES}
-   ${Boost_LIBRARIES}
-)
 
 
 add_library(pcdReader SHARED
@@ -120,6 +108,21 @@ add_library(pcdReader SHARED
 )
 target_link_libraries(pcdReader
   
+   jsoncpp_lib ${PCL_LIBRARIES}
+  ${VTK_LIBRARIES}
+   ${Boost_LIBRARIES}
+)
+
+add_executable(tri 
+ testbed/pcl.cc
+ testbed/jsonfileopt.cpp
+ )
+
+ find_package(Boost REQUIRED COMPONENTS log system program_options thread)
+
+target_link_libraries(tri
+  pcdReader
+  ${PROJECT_NAME}
    jsoncpp_lib ${PCL_LIBRARIES}
   ${VTK_LIBRARIES}
    ${Boost_LIBRARIES}
