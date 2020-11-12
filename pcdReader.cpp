@@ -63,10 +63,14 @@ string readPcdFile(string filename) {
 	
 }
 
+#define saveString2File() //
+
 int readPCD(char* filename, int slen, char** index) {
+	auto dbg = sizeof(wchar_t);
 	saveString2File("", "into c++ readPCD.txt");
 	wstring files = wstring(slen, ' ');
 	memcpy((void*)files.data(), filename, slen*sizeof(wchar_t));
+	assert(files.substr(slen - 4) == L".pcd");
 	saveString2File("", "before WstringToString.txt");
 	saveString2File(WstringToString(files), "pcdfilename.txt");
 	saveString2File("", "after WstringToString.txt");
