@@ -47,6 +47,14 @@ void jsonfileopt::json2string(const Json::Value &offsetOption, std::string &cont
   content = offsetOption.toStyledString();
 }
 
+void jsonfileopt::json2ShortString(const Json::Value& json, std::string& content)
+{
+	Json::StreamWriterBuilder builder;
+	builder["indentation"] = ""; // If you want whitespace-less output
+	content = Json::writeString(builder, json);
+}
+
+
 void jsonfileopt::string2json(const std::string &content, Json::Value &offsetOption)
 {
   Json::Reader reader;
