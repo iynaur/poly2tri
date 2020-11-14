@@ -9,6 +9,7 @@
 #include <pcl/filters/passthrough.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include <boost/thread/thread.hpp>
+#include <pcl/common/time.h>
 
 #include "pcdReader.h"
 #include <testbed/jsonfileopt.h>
@@ -47,18 +48,28 @@ string readPcdFile(string filename) {
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
 	pcl::io::loadPCDFile(filename, *cloud);
 	Json::Value root;
-	for (auto& p : cloud->points) {
-		Json::Value jp;
-		jp["x"] = p.x;
-		jp["y"] = p.y;
-		jp["z"] = p.z;
-		jp["r"] = p.r;
-		jp["g"] = p.g;
-		jp["b"] = p.b;
-		root.append(std::move(jp));
+	{
+		pcl::ScopeTime t("once");
+		int n = cloud->size();
+		vector<Json::Value> jps(n);
+#pragma omp parallel for
+		for (int i = 0; i < n; ++i) {
+			auto& p = cloud->points[i];
+			Json::Value &jp = jps[i];
+			jp["x"] = p.x;
+			jp["y"] = p.y;
+			jp["z"] = p.z;
+			jp["r"] = p.r;
+			jp["g"] = p.g;
+			jp["b"] = p.b;
+		}
+		for (int i = 0; i < n; ++i) {
+			root.append(std::move(jps[i]));
+		}
 	}
+	
 	string ans;
-	jsonfileopt::json2string(root, ans);
+	jsonfileopt::json2ShortString(root, ans);
 	return ans;
 	
 }
