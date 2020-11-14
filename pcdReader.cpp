@@ -78,28 +78,35 @@ string readPcdFile(string filename) {
 	}
 	else {
 		pcl::ScopeTime t("all");
+		int n = cloud->size();
+
 		using json = nlohmann::json;
 		json root;
 		{
 			pcl::ScopeTime t("once");
 
-			int n = cloud->size();
 			if (n) root.operator[](n - 1);
 #pragma omp parallel for
 			for (int i = 0; i < n; ++i) {
 				auto& p = cloud->points[i];
 				json& jp = root[i];
-				jp["x"] = p.x;
-				jp["y"] = p.y;
-				jp["z"] = p.z;
-				jp["r"] = p.r;
-				jp["g"] = p.g;
-				jp["b"] = p.b;
+				jp.operator[](5);
+				jp[0] = p.x;
+				jp[1] = p.y;
+				jp[2] = p.z;
+				jp[3] = p.r;
+				jp[4] = p.g;
+				jp[5] = p.b;
 			}
 		}
 		{
 			pcl::ScopeTime t("twice");
 			ans = root.dump();
+		}
+#pragma omp parallel for
+		for (int i = 0; i < n; ++i) {
+			root[i].clear();
+			
 		}
 	}
 	return ans;
@@ -118,10 +125,10 @@ int readPCD(char* filename, int slen, char** index) {
 	saveString2File("", "after WstringToString.txt");
 	string ans = readPcdFile(WstringToString(files));
 	saveString2File("", "after load pcd.txt");
-	wstring wans = StringToWstring(ans);
+	//wstring wans = StringToWstring(ans);
 	saveString2File("", "after StringToWstring.txt");
-	char* res = new char[wans.size()*sizeof(wchar_t)];
-	memcpy(res, wans.data(), wans.size() * sizeof(wchar_t));
+	char* res = new char[ans.size()];
+	memcpy(res, ans.data(), ans.size());
 	*index = res;
 	saveString2File(ans, "ansjson.txt");
 	return ans.size();
