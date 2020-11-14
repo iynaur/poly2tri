@@ -99,7 +99,7 @@ ${FLANN_INCLUDE_DIR}
 message("===flann")
 message(${FLANN_INCLUDE_DIR})
 
-
+find_package(nlohmann_json CONFIG REQUIRED)
 
 
 add_library(pcdReader SHARED
