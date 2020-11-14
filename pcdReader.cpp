@@ -51,11 +51,13 @@ string readPcdFile(string filename) {
 	{
 		pcl::ScopeTime t("once");
 		int n = cloud->size();
-		vector<Json::Value> jps(n);
+		for (int i = 0; i < n; ++i) {
+			root.operator[](i);
+		}
 #pragma omp parallel for
 		for (int i = 0; i < n; ++i) {
 			auto& p = cloud->points[i];
-			Json::Value &jp = jps[i];
+			Json::Value &jp = root[i];
 			jp["x"] = p.x;
 			jp["y"] = p.y;
 			jp["z"] = p.z;
@@ -63,9 +65,7 @@ string readPcdFile(string filename) {
 			jp["g"] = p.g;
 			jp["b"] = p.b;
 		}
-		for (int i = 0; i < n; ++i) {
-			root.append(std::move(jps[i]));
-		}
+		
 	}
 	
 	string ans;
