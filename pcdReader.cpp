@@ -15,6 +15,7 @@
 #include <testbed/jsonfileopt.h>
 #include <locale> 
 #include <codecvt>
+#include <nlohmann/json.hpp>
 
 std::wstring StringToWstring(const std::string& str)
 {
@@ -47,31 +48,61 @@ void saveString2File(string content, string filename) {
 string readPcdFile(string filename) {
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
 	pcl::io::loadPCDFile(filename, *cloud);
-	Json::Value root;
-	{
-		pcl::ScopeTime t("once");
-		int n = cloud->size();
-		for (int i = 0; i < n; ++i) {
-			root.operator[](i);
-		}
-#pragma omp parallel for
-		for (int i = 0; i < n; ++i) {
-			auto& p = cloud->points[i];
-			Json::Value &jp = root[i];
-			jp["x"] = p.x;
-			jp["y"] = p.y;
-			jp["z"] = p.z;
-			jp["r"] = p.r;
-			jp["g"] = p.g;
-			jp["b"] = p.b;
-		}
-		
-	}
-	
 	string ans;
-	jsonfileopt::json2ShortString(root, ans);
+	if (0) {
+		pcl::ScopeTime t("all");
+		Json::Value root;
+		{
+			pcl::ScopeTime t("once");
+			int n = cloud->size();
+			for (int i = 0; i < n; ++i) {
+				root.operator[](i);
+			}
+#pragma omp parallel for
+			for (int i = 0; i < n; ++i) {
+				auto& p = cloud->points[i];
+				Json::Value& jp = root[i];
+				jp["x"] = p.x;
+				jp["y"] = p.y;
+				jp["z"] = p.z;
+				jp["r"] = p.r;
+				jp["g"] = p.g;
+				jp["b"] = p.b;
+			}
+
+		}
+		{
+			pcl::ScopeTime t("two");
+			jsonfileopt::json2ShortString(root, ans);
+		}
+	}
+	else {
+		pcl::ScopeTime t("all");
+		using json = nlohmann::json;
+		json root;
+		{
+			pcl::ScopeTime t("once");
+
+			int n = cloud->size();
+			if (n) root.operator[](n - 1);
+#pragma omp parallel for
+			for (int i = 0; i < n; ++i) {
+				auto& p = cloud->points[i];
+				json& jp = root[i];
+				jp["x"] = p.x;
+				jp["y"] = p.y;
+				jp["z"] = p.z;
+				jp["r"] = p.r;
+				jp["g"] = p.g;
+				jp["b"] = p.b;
+			}
+		}
+		{
+			pcl::ScopeTime t("twice");
+			ans = root.dump();
+		}
+	}
 	return ans;
-	
 }
 
 #define saveString2File() //
