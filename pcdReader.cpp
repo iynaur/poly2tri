@@ -8,6 +8,8 @@
 #include <pcl/surface/mls.h>
 #include <pcl/filters/passthrough.h>
 #include <pcl/visualization/pcl_visualizer.h>
+#include <pcl/common/centroid.h>
+#include <pcl/common/centroid.h>
 #include <boost/thread/thread.hpp>
 #include <pcl/common/time.h>
 
@@ -15,6 +17,7 @@
 #include <testbed/jsonfileopt.h>
 #include <locale> 
 #include <codecvt>
+#define __attribute__() //
 #include <nlohmann/json.hpp>
 
 std::wstring StringToWstring(const std::string& str)
@@ -79,11 +82,10 @@ string readPcdFile(string filename) {
 	else {
 		pcl::ScopeTime t("all");
 		int n = cloud->size();
-
 		using json = nlohmann::json;
 		json root;
 		{
-			pcl::ScopeTime t("once");
+			//pcl::ScopeTime t("once");
 
 			if (n) root.operator[](n - 1);
 #pragma omp parallel for
@@ -100,7 +102,7 @@ string readPcdFile(string filename) {
 			}
 		}
 		{
-			pcl::ScopeTime t("twice");
+			//pcl::ScopeTime t("twice");
 			ans = root.dump();
 		}
 #pragma omp parallel for
@@ -132,4 +134,29 @@ int readPCD(char* filename, int slen, char** index) {
 	*index = res;
 	saveString2File(ans, "ansjson.txt");
 	return ans.size();
+}
+
+int axis(void* verts_, int len, void* ans_) {
+	float* verts = (float*)verts_;
+	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+	cloud->resize(len);
+	for (int i = 0; i < len; ++i) {
+		memcpy(cloud->points[i].data, verts + 3 * i, 3 * sizeof(float));
+	}
+
+	using namespace pcl;
+
+	// Placeholder for the 3x3 covariance matrix at each surface patch
+	Eigen::Matrix3f covariance_matrix;
+
+	// 16-bytes aligned placeholder for the XYZ centroid of a surface patch
+	Eigen::Vector4f plan;
+	float dummy;
+	computePointNormal(*cloud, plan, dummy);
+
+	float* ans = (float*)ans_;
+	ans[0] = plan.x();
+	ans[1] = plan.y();
+	ans[2] = plan.z();
+	return 0;
 }
