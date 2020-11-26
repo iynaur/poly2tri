@@ -7,6 +7,7 @@ add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
 
+
 find_package( OpenGL REQUIRED )
 include_directories(${OPENGL_INCLUDE_DIR})
 
@@ -106,11 +107,14 @@ add_library(pcdReader SHARED
     pcdReader.cpp
     testbed/jsonfileopt.cpp
 )
+set_target_properties(pcdReader PROPERTIES LINK_FLAGS /INCLUDE:__tcmalloc)
+
 target_link_libraries(pcdReader
   
    jsoncpp_lib ${PCL_LIBRARIES}
   ${VTK_LIBRARIES}
    ${Boost_LIBRARIES}
+   libtcmalloc_minimal
 )
 
 add_executable(tri 
