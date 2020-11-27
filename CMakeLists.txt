@@ -81,15 +81,6 @@ message("===========${Boost_INCLUDE_DIRS}")
 
 qt5_use_modules(${PROJECT_NAME} Core Widgets Gui OpenGL )
 
-# libjsoncpp
-find_package(jsoncpp CONFIG REQUIRED)
-message("===${INTERFACE_INCLUDE_DIRECTORIES}")
-get_target_property(JSON_INC_PATH jsoncpp_lib INTERFACE_INCLUDE_DIRECTORIES)
-include_directories("${JSON_INC_PATH}/json")
-message("=======")
-message(${JSON_INC_PATH})
-
-
 find_package(flann)
 #link_directories(${PCL_LIBRARY_DIRS} "lib")
 add_definitions(${PCL_DEFINITIONS})
@@ -101,7 +92,10 @@ message("===flann")
 message(${FLANN_INCLUDE_DIR})
 
 find_package(nlohmann_json CONFIG REQUIRED)
-
+#    message("===${INTERFACE_INCLUDE_DIRECTORIES}")
+#    get_target_property(JSON_INC_PATH nlohmann_json::nlohmann_json INTERFACE_INCLUDE_DIRECTORIES)
+#    include_directories(${JSON_INC_PATH})
+#    message(${JSON_INC_PATH})
 
 add_library(pcdReader SHARED
     pcdReader.cpp
@@ -110,8 +104,8 @@ add_library(pcdReader SHARED
 set_target_properties(pcdReader PROPERTIES LINK_FLAGS /INCLUDE:__tcmalloc)
 
 target_link_libraries(pcdReader
-  
-   jsoncpp_lib ${PCL_LIBRARIES}
+  nlohmann_json::nlohmann_json # head only lib will auto add include path?
+  ${PCL_LIBRARIES}
   ${VTK_LIBRARIES}
    ${Boost_LIBRARIES}
    libtcmalloc_minimal
@@ -127,7 +121,7 @@ add_executable(tri
 target_link_libraries(tri
   pcdReader
   ${PROJECT_NAME}
-   jsoncpp_lib ${PCL_LIBRARIES}
+  ${PCL_LIBRARIES}
   ${VTK_LIBRARIES}
    ${Boost_LIBRARIES}
 )

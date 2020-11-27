@@ -18,7 +18,7 @@
 #include <locale> 
 #include <codecvt>
 #define __attribute__() //
-#include <nlohmann/json.hpp>
+#include "nlohmann/json.hpp"
 
 std::wstring StringToWstring(const std::string& str)
 {
@@ -52,34 +52,7 @@ string readPcdFile(string filename) {
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
 	pcl::io::loadPCDFile(filename, *cloud);
 	string ans;
-	if (0) {
-		pcl::ScopeTime t("all");
-		Json::Value root;
-		{
-			pcl::ScopeTime t("once");
-			int n = cloud->size();
-			for (int i = 0; i < n; ++i) {
-				root.operator[](i);
-			}
-#pragma omp parallel for
-			for (int i = 0; i < n; ++i) {
-				auto& p = cloud->points[i];
-				Json::Value& jp = root[i];
-				jp["x"] = p.x;
-				jp["y"] = p.y;
-				jp["z"] = p.z;
-				jp["r"] = p.r;
-				jp["g"] = p.g;
-				jp["b"] = p.b;
-			}
-
-		}
-		{
-			pcl::ScopeTime t("two");
-			jsonfileopt::json2ShortString(root, ans);
-		}
-	}
-	else {
+	{
 		pcl::ScopeTime t("all");
 		int n = cloud->size();
 		using json = nlohmann::json;
@@ -105,10 +78,13 @@ string readPcdFile(string filename) {
 			//pcl::ScopeTime t("twice");
 			ans = root.dump();
 		}
+		{
+			//pcl::ScopeTime t("3rd");
 #pragma omp parallel for
-		for (int i = 0; i < n; ++i) {
-			root[i].clear();
-			
+			for (int i = 0; i < n; ++i) {
+				root[i].clear();
+
+			}
 		}
 	}
 	return ans;
