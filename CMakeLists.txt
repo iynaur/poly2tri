@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 
 project(poly2tri)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
@@ -14,7 +14,7 @@ include_directories(${OPENGL_INCLUDE_DIR})
 find_package(GLU REQUIRED)
 include_directories(${GLU_INCLUDE_DIR})
 
-
+include_directories(json/include)
 
 
 #查找需要的Qt库文件，最好每一个库都要写，Qt也会根据依赖关系自动添加

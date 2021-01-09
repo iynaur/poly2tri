@@ -1,4 +1,6 @@
 #include <iostream>
+#define BOOST_JSON_STANDALONE
+#include <boost/json/src.hpp>
 #include <pcl/common/common.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/ply_io.h>
@@ -52,6 +54,7 @@ string readPcdFile(string filename) {
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
 	pcl::io::loadPCDFile(filename, *cloud);
 	string ans;
+	if (bool usenlohmann = 1)
 	{
 		pcl::ScopeTime t("all");
 		int n = cloud->size();
@@ -80,11 +83,39 @@ string readPcdFile(string filename) {
 		}
 		{
 			//pcl::ScopeTime t("3rd");
+			
+		}
+	}
+	else
+	{
+		pcl::ScopeTime t("all");
+		int n = cloud->size();
+		using json = boost::json::array;
+		json root;
+		{
+			//pcl::ScopeTime t("once");
+
+			if (n) root.resize(n);
 #pragma omp parallel for
 			for (int i = 0; i < n; ++i) {
-				root[i].clear();
-
+				auto& p = cloud->points[i];
+				auto& jp = root[i].emplace_array();
+				jp.resize(6);
+				jp[0] = p.x;
+				jp[1] = p.y;
+				jp[2] = p.z;
+				jp[3] = p.r;
+				jp[4] = p.g;
+				jp[5] = p.b;
 			}
+			}
+		{
+			//pcl::ScopeTime t("twice");
+			ans = boost::json::serialize(root);
+		}
+		{
+			//pcl::ScopeTime t("3rd");
+
 		}
 	}
 	return ans;
