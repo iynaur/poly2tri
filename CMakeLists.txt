@@ -91,11 +91,8 @@ ${FLANN_INCLUDE_DIR}
 message("===flann")
 message(${FLANN_INCLUDE_DIR})
 
-find_package(nlohmann_json CONFIG REQUIRED)
-#    message("===${INTERFACE_INCLUDE_DIRECTORIES}")
-#    get_target_property(JSON_INC_PATH nlohmann_json::nlohmann_json INTERFACE_INCLUDE_DIRECTORIES)
-#    include_directories(${JSON_INC_PATH})
-#    message(${JSON_INC_PATH})
+#find_package(nlohmann_json CONFIG REQUIRED)
+
 
 add_library(pcdReader SHARED
     pcdReader.cpp
@@ -104,11 +101,11 @@ add_library(pcdReader SHARED
 set_target_properties(pcdReader PROPERTIES LINK_FLAGS /INCLUDE:__tcmalloc)
 
 target_link_libraries(pcdReader
-  nlohmann_json::nlohmann_json # head only lib will auto add include path?
+  #nlohmann_json::nlohmann_json # head only lib will auto add include path?
   ${PCL_LIBRARIES}
   ${VTK_LIBRARIES}
    ${Boost_LIBRARIES}
-   libtcmalloc_minimal
+   ${CMAKE_CURRENT_SOURCE_DIR}/libtcmalloc_minimal.lib
 )
 
 add_executable(tri 
